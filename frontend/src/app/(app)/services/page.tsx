@@ -11,6 +11,8 @@ export default function ServicesPage() {
   const [services, setServices] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshToast, setRefreshToast] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Filters & Pagination state
@@ -20,9 +22,16 @@ export default function ServicesPage() {
   const [page, setPage] = useState(1);
   const pageSize = 15;
 
-  const fetchServices = async () => {
-    setLoading(true);
+  const fetchServices = async (isManual = false) => {
+    if (isManual) {
+      setRefreshing(true);
+    } else if (services.length === 0) {
+      setLoading(true);
+    }
     setError(null);
+
+    const minDelay = isManual ? new Promise((r) => setTimeout(r, 450)) : Promise.resolve();
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -32,18 +41,26 @@ export default function ServicesPage() {
       if (environment) params.append("environment", environment);
       if (healthStatus) params.append("health_status", healthStatus);
 
-      const res = await apiClient<any[]>(`/services?${params.toString()}`);
+      const [res] = await Promise.all([
+        apiClient<any[]>(`/services?${params.toString()}`),
+        minDelay,
+      ]);
       setServices(res.data || []);
       setTotal(res.meta?.total || 0);
+      if (isManual) {
+        setRefreshToast(true);
+        setTimeout(() => setRefreshToast(false), 2400);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load services list.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchServices();
+    fetchServices(false);
   }, [page, environment, healthStatus]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -71,13 +88,25 @@ export default function ServicesPage() {
             Discover and inspect telemetry health across registered microservice workloads.
           </p>
         </div>
-        <button
-          onClick={fetchServices}
-          className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </button>
+        <div className="flex items-center space-x-3">
+          {refreshToast && (
+            <span className="inline-flex items-center text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+              Refreshed
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => fetchServices(true)}
+            disabled={refreshing || loading}
+            className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm disabled:opacity-60 cursor-pointer active:scale-95 transition-all"
+            aria-label="Refresh services telemetry"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-500"}`} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* KPI Summary Cards */}

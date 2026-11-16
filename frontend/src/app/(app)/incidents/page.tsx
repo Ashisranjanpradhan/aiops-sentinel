@@ -11,6 +11,8 @@ export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshToast, setRefreshToast] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Filters
@@ -20,9 +22,16 @@ export default function IncidentsPage() {
   const [page, setPage] = useState(1);
   const pageSize = 15;
 
-  const fetchIncidents = async () => {
-    setLoading(true);
+  const fetchIncidents = async (isManual = false) => {
+    if (isManual) {
+      setRefreshing(true);
+    } else if (incidents.length === 0) {
+      setLoading(true);
+    }
     setError(null);
+
+    const minDelay = isManual ? new Promise((r) => setTimeout(r, 450)) : Promise.resolve();
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -32,18 +41,26 @@ export default function IncidentsPage() {
       if (severity) params.append("severity", severity);
       if (statusFilter) params.append("status", statusFilter);
 
-      const res = await apiClient<any[]>(`/incidents?${params.toString()}`);
+      const [res] = await Promise.all([
+        apiClient<any[]>(`/incidents?${params.toString()}`),
+        minDelay,
+      ]);
       setIncidents(res.data || []);
       setTotal(res.meta?.total || 0);
+      if (isManual) {
+        setRefreshToast(true);
+        setTimeout(() => setRefreshToast(false), 2400);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load incidents.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchIncidents();
+    fetchIncidents(false);
   }, [page, severity, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -71,13 +88,25 @@ export default function IncidentsPage() {
             Automated anomaly detection alerts and RCA investigations across system services.
           </p>
         </div>
-        <button
-          onClick={fetchIncidents}
-          className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </button>
+        <div className="flex items-center space-x-3">
+          {refreshToast && (
+            <span className="inline-flex items-center text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+              Refreshed
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => fetchIncidents(true)}
+            disabled={refreshing || loading}
+            className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm disabled:opacity-60 cursor-pointer active:scale-95 transition-all"
+            aria-label="Refresh incidents list"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-500"}`} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* KPI Stat Cards */}

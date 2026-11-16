@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Database,
   ArrowRight,
+  Clock,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge, SeverityBadge } from "@/components/common/StatusBadge";
@@ -27,27 +28,46 @@ import {
 export default function OverviewPage() {
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [refreshToast, setRefreshToast] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOverview = async () => {
-    setLoading(true);
+  const fetchOverview = async (isManual = false) => {
+    if (isManual) {
+      setRefreshing(true);
+    } else if (!data) {
+      setLoading(true);
+    }
     setError(null);
+
+    const minDelay = isManual ? new Promise((r) => setTimeout(r, 450)) : Promise.resolve();
+
     try {
-      const res = await apiClient<any>("/overview/summary");
+      const [res] = await Promise.all([
+        apiClient<any>("/overview/summary"),
+        minDelay,
+      ]);
       setData(res.data);
+      setLastUpdated(new Date());
+      if (isManual) {
+        setRefreshToast(true);
+        setTimeout(() => setRefreshToast(false), 2400);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load platform overview.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchOverview();
+    fetchOverview(false);
   }, []);
 
   if (loading && !data) return <LoadingSpinner message="Aggregating observability summary..." />;
-  if (error && !data) return <ErrorAlert message={error} onRetry={fetchOverview} />;
+  if (error && !data) return <ErrorAlert message={error} onRetry={() => fetchOverview(false)} />;
 
   return (
     <div className="space-y-6">
@@ -55,18 +75,39 @@ export default function OverviewPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">System Reliability Overview</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time health status, active incidents, and telemetry backends status.
+          <p className="text-xs text-slate-500 mt-0.5 flex items-center space-x-2">
+            <span>Real-time health status, active incidents, and telemetry backends.</span>
+            {lastUpdated && (
+              <>
+                <span>•</span>
+                <span className="text-slate-600 font-mono text-[11px] flex items-center">
+                  <Clock className="w-3 h-3 mr-1 text-slate-400" />
+                  Updated: {lastUpdated.toLocaleTimeString()}
+                </span>
+              </>
+            )}
           </p>
         </div>
-        <button
-          onClick={fetchOverview}
-          disabled={loading}
-          className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh Data
-        </button>
+
+        <div className="flex items-center space-x-3">
+          {refreshToast && (
+            <span className="inline-flex items-center text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md animate-fade-in shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+              Refreshed
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => fetchOverview(true)}
+            disabled={refreshing || loading}
+            className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm disabled:opacity-60 cursor-pointer active:scale-95 transition-all"
+            aria-label="Refresh overview telemetry"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-500"}`} />
+            {refreshing ? "Refreshing..." : "Refresh Data"}
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
