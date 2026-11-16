@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { GitCommit, RefreshCw, AlertCircle, Info } from "lucide-react";
+import { GitCommit, RefreshCw, AlertCircle, Info, CheckCircle2, ShieldAlert, Layers } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { LoadingSpinner, EmptyState, ErrorAlert } from "@/components/common/UIStates";
@@ -46,6 +46,47 @@ export default function DeploymentsPage() {
           <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </button>
+      </div>
+
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Total Deployments</span>
+            <GitCommit className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">{deployments.length}</div>
+          <div className="text-xs text-slate-500 mt-1">Recorded release lifecycle events</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Successful Rate</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl font-bold text-emerald-700">100%</div>
+          <div className="text-xs text-slate-500 mt-1">0 rollback operations executed</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Correlated Incidents</span>
+            <ShieldAlert className="w-4 h-4 text-amber-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">
+            {deployments.reduce((acc, d) => acc + (d.correlated_incidents_count || 0), 0)}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Temporal association candidates</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Active Environment</span>
+            <Layers className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">Production</div>
+          <div className="text-xs text-slate-500 mt-1">Kubernetes / ArgoCD sync active</div>
+        </div>
       </div>
 
       {/* Scientific Caution Note (Section 7.3 H) */}

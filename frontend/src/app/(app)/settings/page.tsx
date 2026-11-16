@@ -89,6 +89,61 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Detection & Data Policy Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Anomaly Detection Sensitivity */}
+        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <Settings className="w-4 h-4 text-indigo-600" />
+            <span>Detection & Inference Parameters</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Robust Z-Score Threshold:</span>
+              <span className="font-mono font-semibold text-slate-800">3.5 MAD</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">EWMA Smoothing Factor (α):</span>
+              <span className="font-mono font-semibold text-slate-800">0.20</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Isolation Forest Contamination:</span>
+              <span className="font-mono font-semibold text-slate-800">0.05 (5%)</span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="text-slate-500">RCA Candidate Ranking Depth:</span>
+              <span className="font-mono font-semibold text-indigo-700">Top 5 Candidates</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Telemetry Scraping & Retention */}
+        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <Server className="w-4 h-4 text-indigo-600" />
+            <span>Scraping & Retention Policy</span>
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Scrape Resolution:</span>
+              <span className="font-semibold text-slate-800">15 seconds (Prometheus)</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Metrics Retention Window:</span>
+              <span className="font-semibold text-slate-800">30 days</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Log Distributor Buffer:</span>
+              <span className="font-semibold text-slate-800">14 days (Loki)</span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="text-slate-500">Trace Sampling Strategy:</span>
+              <span className="font-semibold text-emerald-700">100% on Error, 10% Baseline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Platform Metadata & Version */}
       <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-4">
         <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-2">

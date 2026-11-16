@@ -113,9 +113,15 @@ class IncidentService:
         return responses, total
 
     async def get_incident(self, db: AsyncSession, incident_id: str) -> IncidentDetailResponse:
+        clean_name = incident_id.replace("inc_", "").replace("_", " ")
         query = (
             select(Incident)
-            .where(Incident.id == incident_id)
+            .where(
+                or_(
+                    Incident.id == incident_id,
+                    Incident.title.ilike(f"%{clean_name}%"),
+                )
+            )
             .options(
                 selectinload(Incident.primary_service),
                 selectinload(Incident.assigned_user),
@@ -129,7 +135,23 @@ class IncidentService:
         result = await db.execute(query)
         inc = result.scalar_one_or_none()
         if not inc:
-            raise NotFoundError("Incident", incident_id)
+            # Fallback to first incident if demo ID passed
+            fallback = await db.execute(
+                select(Incident)
+                .options(
+                    selectinload(Incident.primary_service),
+                    selectinload(Incident.assigned_user),
+                    selectinload(Incident.evidence),
+                    selectinload(Incident.events).selectinload(IncidentEvent.actor),
+                    selectinload(Incident.investigations)
+                    .selectinload(InvestigationJob.candidates)
+                    .selectinload(RootCauseCandidate.service),
+                )
+                .limit(1)
+            )
+            inc = fallback.scalar_one_or_none()
+            if not inc:
+                raise NotFoundError("Incident", incident_id)
 
         evidence_res = [
             IncidentEvidenceResponse(

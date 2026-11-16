@@ -1,4 +1,4 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundError
@@ -79,7 +79,16 @@ class ServicesService:
         return responses, total
 
     async def get_service(self, db: AsyncSession, service_id: str) -> ServiceResponse:
-        result = await db.execute(select(Service).where(Service.id == service_id))
+        clean_name = service_id.removeprefix("srv_")
+        result = await db.execute(
+            select(Service).where(
+                or_(
+                    Service.id == service_id,
+                    Service.name == service_id,
+                    Service.name == clean_name,
+                )
+            )
+        )
         s = result.scalar_one_or_none()
         if not s:
             raise NotFoundError("Service", service_id)

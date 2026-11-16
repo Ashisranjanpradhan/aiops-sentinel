@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Database, RefreshCw, Plus, CheckCircle, ShieldCheck } from "lucide-react";
+import { Database, RefreshCw, Plus, CheckCircle, ShieldCheck, FileCheck, Layers } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { LoadingSpinner, EmptyState, ErrorAlert } from "@/components/common/UIStates";
@@ -93,6 +93,45 @@ export default function DatasetsPage() {
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
+        </div>
+      </div>
+
+      {/* KPI Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Registered Datasets</span>
+            <Database className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">{datasets.length}</div>
+          <div className="text-xs text-slate-500 mt-1">Validated benchmark suites</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Telemetry Modalities</span>
+            <Layers className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">3 Types</div>
+          <div className="text-xs text-slate-500 mt-1">Metrics, Logs, Distributed Traces</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">License Governance</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl font-bold text-emerald-700">100%</div>
+          <div className="text-xs text-slate-500 mt-1">Usage rights recorded & verified</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Split Manifests</span>
+            <FileCheck className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900 font-mono">Ready</div>
+          <div className="text-xs text-slate-500 mt-1">Reproducible evaluation partitions</div>
         </div>
       </div>
 

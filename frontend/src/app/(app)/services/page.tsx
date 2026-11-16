@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Filter, RefreshCw, XCircle } from "lucide-react";
+import { Search, Filter, RefreshCw, XCircle, Server, CheckCircle2, AlertTriangle, Activity } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { LoadingSpinner, EmptyState, ErrorAlert } from "@/components/common/UIStates";
@@ -80,20 +80,65 @@ export default function ServicesPage() {
         </button>
       </div>
 
-      {/* Search and Filters Bar */}
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search service name..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          />
-        </form>
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Total Services</span>
+            <Server className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">{total || services.length}</div>
+          <div className="text-xs text-slate-500 mt-1">Discovered workloads</div>
+        </div>
 
-        <div className="flex items-center space-x-3 w-full sm:w-auto">
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Healthy Status</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl font-bold text-emerald-700">
+            {services.filter((s) => s.health_status === "healthy").length}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Operating within SLA limits</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Degraded / Critical</span>
+            <AlertTriangle className="w-4 h-4 text-rose-600" />
+          </div>
+          <div className="text-2xl font-bold text-rose-700">
+            {services.filter((s) => s.health_status === "critical" || s.health_status === "warning").length}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Requiring SRE investigation</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Active Incidents</span>
+            <Activity className="w-4 h-4 text-amber-600" />
+          </div>
+          <div className="text-2xl font-bold text-slate-900">
+            {services.reduce((acc, s) => acc + (s.active_incidents_count || 0), 0)}
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Correlated anomalies</div>
+        </div>
+      </div>
+
+      {/* Search and Filters Bar */}
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search service name..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+          </form>
+
           <select
             value={environment}
             onChange={(e) => {
@@ -131,6 +176,10 @@ export default function ServicesPage() {
               <span>Clear</span>
             </button>
           )}
+        </div>
+
+        <div className="text-xs text-slate-500">
+          Showing <span className="font-semibold text-slate-900">{services.length}</span> of {total} services
         </div>
       </div>
 

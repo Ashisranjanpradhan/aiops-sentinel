@@ -111,8 +111,8 @@ export default function TopologyPage() {
                 const getCoords = (i: number) => {
                   const angle = (i / nodes.length) * 2 * Math.PI;
                   return {
-                    x: 350 + 220 * Math.cos(angle),
-                    y: 240 + 170 * Math.sin(angle),
+                    x: 350 + 225 * Math.cos(angle),
+                    y: 230 + 145 * Math.sin(angle),
                   };
                 };
 
@@ -137,8 +137,8 @@ export default function TopologyPage() {
               {/* Nodes */}
               {nodes.map((node: any, idx: number) => {
                 const angle = (idx / nodes.length) * 2 * Math.PI;
-                const cx = 350 + 220 * Math.cos(angle);
-                const cy = 240 + 170 * Math.sin(angle);
+                const cx = 350 + 225 * Math.cos(angle);
+                const cy = 230 + 145 * Math.sin(angle);
                 const isSelected = selectedNode?.name === node.name;
 
                 let strokeColor = "#10b981"; // healthy
@@ -151,21 +151,25 @@ export default function TopologyPage() {
                     className="cursor-pointer transition-transform hover:scale-105"
                     onClick={() => setSelectedNode(node)}
                   >
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={isSelected ? 26 : 22}
-                      fill="#ffffff"
+                    <rect
+                      x={cx - 54}
+                      y={cy - 16}
+                      width={108}
+                      height={32}
+                      rx={6}
+                      fill={isSelected ? "#eef2ff" : "#ffffff"}
                       stroke={isSelected ? "#4f46e5" : strokeColor}
-                      strokeWidth={isSelected ? 3.5 : 2.5}
-                      className="shadow-sm"
+                      strokeWidth={isSelected ? 2 : 1.5}
+                      className="filter drop-shadow-sm"
                     />
+                    {/* Status dot */}
+                    <circle cx={cx - 42} cy={cy} r={4} fill={strokeColor} />
                     <text
-                      x={cx}
-                      y={cy + 34}
-                      textAnchor="middle"
-                      className={`text-[11px] font-semibold ${
-                        isSelected ? "fill-indigo-700 font-bold" : "fill-slate-700"
+                      x={cx - 32}
+                      y={cy + 4}
+                      textAnchor="start"
+                      className={`text-[11px] font-semibold select-none ${
+                        isSelected ? "fill-indigo-900 font-bold" : "fill-slate-800"
                       }`}
                     >
                       {node.name}

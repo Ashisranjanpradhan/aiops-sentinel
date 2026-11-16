@@ -16,6 +16,8 @@ import {
   User,
   LogOut,
   Radio,
+  Clock,
+  ChevronDown,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 
@@ -41,6 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("SRE Lead");
   const [telemetryReady, setTelemetryReady] = useState<boolean>(true);
+  const [timeRange, setTimeRange] = useState<string>("3h");
 
   useEffect(() => {
     // Check user info and telemetry status
@@ -83,9 +86,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const currentNav = PRIMARY_NAV.find((item) =>
-    pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href))
-  );
+  // Derive dynamic breadcrumb / page title
+  let pageTitle = "Observability Console";
+  if (pathname === "/overview") pageTitle = "Overview";
+  else if (pathname.startsWith("/services/")) pageTitle = "Services / Detail";
+  else if (pathname === "/services") pageTitle = "Services";
+  else if (pathname.startsWith("/incidents/")) pageTitle = "Incidents / Investigation";
+  else if (pathname === "/incidents") pageTitle = "Incidents";
+  else if (pathname === "/topology") pageTitle = "Topology";
+  else if (pathname === "/deployments") pageTitle = "Deployments";
+  else if (pathname.startsWith("/experiments/")) pageTitle = "Experiments / Run";
+  else if (pathname === "/experiments") pageTitle = "Experiments";
+  else if (pathname === "/datasets") pageTitle = "Datasets";
+  else if (pathname === "/alert-rules") pageTitle = "Alert Rules";
+  else if (pathname === "/settings") pageTitle = "Settings";
+  else if (pathname === "/profile") pageTitle = "User Profile";
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-900">
@@ -164,17 +179,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8 shrink-0">
           <div className="flex items-center space-x-3">
-            <h1 className="text-lg font-semibold text-slate-900">
-              {currentNav?.name || "Observability Console"}
+            <h1 className="text-base font-semibold text-slate-900 tracking-tight">
+              {pageTitle}
             </h1>
-            <span className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-mono">
-              Demo Environment
+            <span className="text-[11px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded font-mono">
+              Production Telemetry
             </span>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            {/* Global Time Range Selector (Section 6.3 & 7.3 B) */}
+            <div className="flex items-center bg-white border border-slate-200 rounded-md shadow-sm px-2.5 py-1 text-xs text-slate-700">
+              <Clock className="w-3.5 h-3.5 text-slate-400 mr-1.5" />
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer"
+              >
+                <option value="15m">Last 15 minutes</option>
+                <option value="1h">Last 1 hour</option>
+                <option value="3h">Last 3 hours</option>
+                <option value="24h">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+              </select>
+            </div>
+
             {/* Live Data Backend Indicator */}
             <div className="flex items-center space-x-2 text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
               <Radio
@@ -182,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   telemetryReady ? "text-emerald-500 animate-pulse" : "text-amber-500"
                 }`}
               />
-              <span>{telemetryReady ? "Telemetry Active" : "Telemetry Degraded"}</span>
+              <span className="hidden sm:inline">{telemetryReady ? "Telemetry Active" : "Telemetry Degraded"}</span>
             </div>
 
             <div className="text-right">
@@ -192,8 +223,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Scrollable Page Body */}
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        {/* Scrollable Page Body with Consistent Max-Width Alignment */}
+        <main className="flex-1 overflow-y-auto px-6 py-6 lg:px-8 lg:py-8 bg-slate-50">
+          <div className="max-w-7xl mx-auto w-full space-y-6">{children}</div>
+        </main>
       </div>
     </div>
   );
