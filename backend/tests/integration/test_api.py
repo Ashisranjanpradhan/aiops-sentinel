@@ -270,3 +270,90 @@ async def test_alert_rules_crud():
         # Verify not found after delete
         not_found_res = await client.get(f"/api/v1/alert-rules/{rule_id}", headers=headers)
         assert not_found_res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_deployments_preflight_and_delivery():
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Login
+        login_res = await client.post(
+            "/api/v1/auth/login",
+            json={"email": "admin@aiops.sentinel", "password": "sentinel-admin-1234"},
+        )
+        assert login_res.status_code == 200
+        token = login_res.json()["data"]["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Fetch available services
+        srv_res = await client.get("/api/v1/services", headers=headers)
+        assert srv_res.status_code == 200
+        services = srv_res.json()["data"]
+        assert len(services) > 0
+        target_service = services[0]
+
+        # 2. Run Preflight Check
+        preflight_res = await client.post(
+            "/api/v1/deployments/preflight-check",
+            headers=headers,
+            json={
+                "service_id": target_service["id"],
+                "candidate_version": "v2.5.0-rc1",
+                "target_environment": "production",
+                "commit_hash": "a1b2c3d",
+                "pipeline_strategy": "canary_10",
+                "simulate_canary_failure": False,
+                "simulate_schema_drift": False,
+            },
+        )
+        assert preflight_res.status_code == 200
+        pdata = preflight_res.json()["data"]
+        assert pdata["service_id"] == target_service["id"]
+        assert pdata["decision"] in ["PROCEED", "CHANGES_REQUIRED", "BLOCKED"]
+        assert len(pdata["pipeline_checks"]) == 5
+        assert len(pdata["what_is_at_risk"]) > 0
+        assert len(pdata["what_needs_to_be_changed"]) > 0
+
+        # 3. Preflight with simulated failure should be BLOCKED
+        fail_res = await client.post(
+            "/api/v1/deployments/preflight-check",
+            headers=headers,
+            json={
+                "service_id": target_service["id"],
+                "candidate_version": "v2.5.0-rc2",
+                "simulate_canary_failure": True,
+                "simulate_schema_drift": True,
+            },
+        )
+        assert fail_res.status_code == 200
+        fdata = fail_res.json()["data"]
+        assert fdata["decision"] == "BLOCKED"
+        assert fdata["risk_score"] >= 65
+        assert any(c["status"] == "failed" for c in fdata["pipeline_checks"])
+
+        # 4. Deliver a release candidate
+        deliver_res = await client.post(
+            "/api/v1/deployments/deliver",
+            headers=headers,
+            json={
+                "service_id": target_service["id"],
+                "candidate_version": "v2.5.0",
+                "target_environment": "production",
+                "commit_hash": "a1b2c3d",
+                "preflight_decision": "PROCEED",
+                "risk_score": 12,
+                "notes": "Automated delivery test release",
+            },
+        )
+        assert deliver_res.status_code == 200
+        ddata = deliver_res.json()["data"]
+        assert ddata["service_id"] == target_service["id"]
+        assert ddata["status"] == "success"
+
+        # 5. Verify it appears in deployments list
+        list_res = await client.get("/api/v1/deployments", headers=headers)
+        assert list_res.status_code == 200
+        deps = list_res.json()["data"]
+        assert any(d["id"] == ddata["id"] for d in deps)
+

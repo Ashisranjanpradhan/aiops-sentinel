@@ -5,6 +5,7 @@ from app.api.deps import get_current_user
 from app.core.response import make_response
 from app.db.session import get_db
 from app.models.entities import User
+from app.schemas.domain import DeliverDeploymentRequest, PreflightCheckRequest
 from app.services.deployment_service import deployment_service
 
 router = APIRouter(prefix="/deployments", tags=["Deployments"])
@@ -27,6 +28,28 @@ async def list_deployments(
     )
 
 
+@router.post("/preflight-check")
+async def run_preflight_check(
+    req: PreflightCheckRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await deployment_service.preflight_check(db=db, req=req)
+    return make_response(res.model_dump())
+
+
+@router.post("/deliver")
+async def deliver_deployment(
+    req: DeliverDeploymentRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    res = await deployment_service.deliver_deployment(
+        db=db, req=req, current_user_id=current_user.id
+    )
+    return make_response(res.model_dump())
+
+
 @router.get("/{deployment_id}")
 async def get_deployment(
     deployment_id: str,
@@ -35,3 +58,4 @@ async def get_deployment(
 ):
     d = await deployment_service.get_deployment(db, deployment_id)
     return make_response(d.model_dump())
+

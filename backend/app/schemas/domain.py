@@ -295,6 +295,71 @@ class DeploymentCreate(BaseModel):
     details_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class PipelineCheckItem(BaseModel):
+    check_id: str
+    name: str
+    status: str  # passed, warning, failed
+    duration_ms: int
+    details: str
+    metrics: dict[str, Any] | None = None
+
+
+class RiskItem(BaseModel):
+    category: str  # SLO Impact, Blast Radius, Downstream Dependency, Data Integrity
+    target: str
+    severity: str  # critical, high, moderate, low
+    description: str
+    blast_radius_percentage: float = 0.0
+
+
+class RemediationChangeItem(BaseModel):
+    id: str
+    priority: str  # BLOCKING, REQUIRED, RECOMMENDED
+    component: str  # e.g. "Database Migration", "Kubernetes Config", "Dependency Service"
+    issue: str
+    required_change: str
+    config_target: str
+
+
+class PreflightCheckRequest(BaseModel):
+    service_id: str
+    candidate_version: str = "v1.0.0"
+    target_environment: str = "production"
+    commit_hash: str = "main-latest"
+    pipeline_strategy: str = "canary_10"
+    simulate_canary_failure: bool = False
+    simulate_schema_drift: bool = False
+
+
+class PreflightCheckResponse(BaseModel):
+    service_id: str
+    service_name: str
+    candidate_version: str
+    target_environment: str
+    commit_hash: str
+    pipeline_strategy: str
+    decision: str  # PROCEED, CHANGES_REQUIRED, BLOCKED
+    risk_score: int  # 0 to 100
+    risk_level: str  # LOW, MODERATE, HIGH, CRITICAL
+    summary: str
+    evaluated_at: datetime
+    pipeline_checks: list[PipelineCheckItem]
+    what_is_at_risk: list[RiskItem]
+    what_needs_to_be_changed: list[RemediationChangeItem]
+    downstream_dependencies: list[str]
+    upstream_callers: list[str]
+
+
+class DeliverDeploymentRequest(BaseModel):
+    service_id: str
+    candidate_version: str
+    target_environment: str = "production"
+    commit_hash: str = ""
+    preflight_decision: str = "PROCEED"
+    risk_score: int = 0
+    notes: str = ""
+
+
 # ================== Experiments ==================
 
 

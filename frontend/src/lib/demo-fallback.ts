@@ -399,6 +399,140 @@ export function getDemoFallback(endpoint: string, options: RequestInit = {}): an
     };
   }
 
+  if (endpoint.startsWith("/deployments/preflight-check")) {
+    return {
+      data: {
+        service_id: "srv_checkout",
+        service_name: "checkout",
+        candidate_version: "v2.5.0-rc1",
+        target_environment: "production",
+        commit_hash: "git-a7f93e2",
+        pipeline_strategy: "canary_10",
+        decision: "CHANGES_REQUIRED",
+        risk_score: 55,
+        risk_level: "MODERATE",
+        summary:
+          "Candidate release v2.5.0-rc1 evaluated with moderate risk (Risk Score: 55/100). Conditional approval: Downstream dependencies show elevated error rates and recommended configuration adjustments are required before full delivery.",
+        evaluated_at: new Date().toISOString(),
+        pipeline_checks: [
+          {
+            check_id: "topology_blast",
+            name: "Topology & Blast Radius Audit",
+            status: "warning",
+            duration_ms: 38,
+            details: "High connectivity node: 2 upstream caller(s), 3 downstream callee(s). Blast radius coverage: 62.5%.",
+            metrics: { upstream_callers: 2, downstream_callees: 3, blast_radius_pct: 62.5 },
+          },
+          {
+            check_id: "incident_state",
+            name: "Active Incident & Service State Check",
+            status: "warning",
+            duration_ms: 28,
+            details: "Downstream dependencies (payment, shipping) have 1 active incident: Payment processing timeout.",
+            metrics: { active_target_incidents: 0, active_dependency_incidents: 1 },
+          },
+          {
+            check_id: "canary_error_rate",
+            name: "Canary Telemetry & Error Rate Gate",
+            status: "passed",
+            duration_ms: 142,
+            details: "Canary traffic error rate is 0.12% across 3,200 synthetic requests (Within 0.50% threshold).",
+            metrics: { canary_error_rate: 0.0012, threshold: 0.005, sample_requests: 3200 },
+          },
+          {
+            check_id: "p99_latency_gate",
+            name: "P99 Tail Latency & SLO Degradation Gate",
+            status: "warning",
+            duration_ms: 92,
+            details: "P99 response time measured at 268ms (Target: < 250ms). Tail latency inflation +7.2% under load.",
+            metrics: { canary_p99_ms: 268, baseline_p99_ms: 250, drift_percent: 7.2 },
+          },
+          {
+            check_id: "config_schema_drift",
+            name: "Database Schema & Config Drift Verification",
+            status: "passed",
+            duration_ms: 44,
+            details: "Configmaps, secret references, and database DDL migrations are 100% backward-compatible.",
+            metrics: { migration_status: "compatible", env_variables_diff: 0 },
+          },
+        ],
+        what_is_at_risk: [
+          {
+            category: "Downstream Blast Radius",
+            target: "payment, shipping, cart",
+            severity: "high",
+            description: "Direct microservice dependencies (payment, shipping, cart) rely on checkout. Deployment regressions will propagate cascade queue delays.",
+            blast_radius_percentage: 62.5,
+          },
+          {
+            category: "Upstream Traffic Ingress",
+            target: "frontend, api-gateway",
+            severity: "moderate",
+            description: "Upstream edge callers route direct user shopping carts into checkout. Regressions manifest as elevated 502/504 errors at browser edge.",
+            blast_radius_percentage: 50.0,
+          },
+          {
+            category: "SLO Error Budget",
+            target: "checkout 99.9% Availability Target",
+            severity: "moderate",
+            description: "Risk profile projects a 55% probability of consuming more than 15% of monthly error budget during initial rollout window.",
+            blast_radius_percentage: 55.0,
+          },
+        ],
+        what_needs_to_be_changed: [
+          {
+            id: "fix-inc-dep",
+            priority: "REQUIRED",
+            component: "Downstream Dependency (payment)",
+            issue: "Downstream service payment has active incident 'Payment processing timeout'.",
+            required_change: "Verify upstream circuit breaker trip thresholds and retry backoff settings before delivering traffic.",
+            config_target: "helm/values/checkout.yaml:resilience.circuitBreaker",
+          },
+          {
+            id: "fix-p99-latency",
+            priority: "REQUIRED",
+            component: "Database Connection Pool / Ingress",
+            issue: "P99 latency inflation (268ms vs 250ms target) threatens client checkout timeout thresholds.",
+            required_change: "Increase connection pool max_size from 20 to 60 connections and verify Redis read-replica query caching.",
+            config_target: "k8s/overlays/prod/configmap-env.yaml:DB_POOL_MAX",
+          },
+          {
+            id: "rec-canary-duration",
+            priority: "RECOMMENDED",
+            component: "Deployment Strategy / Argo Rollouts",
+            issue: "Canary step duration is set to default 10 minutes.",
+            required_change: "Maintain 10% canary traffic for minimum 30 minutes to verify asynchronous background workers before 100% promotion.",
+            config_target: "k8s/rollout.yaml:spec.strategy.canary.steps",
+          },
+        ],
+        downstream_dependencies: ["payment", "shipping", "cart"],
+        upstream_callers: ["frontend", "api-gateway"],
+      },
+      meta: { request_id: "req_demo" },
+      error: null,
+    };
+  }
+
+  if (endpoint.startsWith("/deployments/deliver")) {
+    return {
+      data: {
+        id: "dep_demo_new",
+        deployment_id: "dep-7a2f19",
+        service_id: "srv_checkout",
+        service_name: "checkout",
+        environment: "production",
+        status: "success",
+        commit_id: "git-a7f93e2",
+        started_at: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+        details_json: { version: "v2.5.0-rc1", preflight_decision: "PROCEED" },
+        correlated_incidents_count: 0,
+      },
+      meta: { request_id: "req_demo" },
+      error: null,
+    };
+  }
+
   if (endpoint.startsWith("/deployments")) {
     return {
       data: [
