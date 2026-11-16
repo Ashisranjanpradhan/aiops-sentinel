@@ -1,0 +1,46 @@
+name: CI Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-checks:
+    name: Backend Tests & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install uv and dependencies
+        run: |
+          pip install uv
+          uv venv
+          . .venv/bin/activate
+          uv pip install -e "./backend[dev]" -e "./ml"
+      - name: Run backend tests
+        run: |
+          . .venv/bin/activate
+          pytest backend/tests ml/tests -v
+
+  frontend-checks:
+    name: Frontend Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci || npm install
+      - name: Lint and build
+        working-directory: ./frontend
+        run: |
+          npm run lint
+          npm run build
