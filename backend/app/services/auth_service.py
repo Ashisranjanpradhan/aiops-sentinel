@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import NotFoundError, UnauthorizedError
-from app.core.security import create_access_token, verify_password
+from app.core.errors import ConflictError, NotFoundError, UnauthorizedError
+from app.core.security import create_access_token, hash_password, verify_password
 from app.models.entities import User
 from app.schemas.domain import TokenResponse, UserResponse
 
@@ -30,6 +30,41 @@ class AuthService:
             role=user.role,
             is_active=user.is_active,
             created_at=user.created_at,
+        )
+
+        return TokenResponse(access_token=token, token_type="bearer", user=user_resp)
+
+    async def register_user(
+        self, db: AsyncSession, email: str, password: str, display_name: str, role: str = "analyst"
+    ) -> TokenResponse:
+        norm_email = email.strip().lower()
+        existing = await db.execute(select(User).where(User.email == norm_email))
+        if existing.scalar_one_or_none():
+            raise ConflictError("An account with this email already exists.")
+
+        hashed = hash_password(password)
+        new_user = User(
+            email=norm_email,
+            display_name=display_name.strip(),
+            password_hash=hashed,
+            role=role,
+            is_active=True,
+        )
+        db.add(new_user)
+        await db.commit()
+        await db.refresh(new_user)
+
+        token = create_access_token(
+            subject=new_user.id, extra_claims={"email": new_user.email, "role": new_user.role}
+        )
+
+        user_resp = UserResponse(
+            id=new_user.id,
+            email=new_user.email,
+            display_name=new_user.display_name,
+            role=new_user.role,
+            is_active=new_user.is_active,
+            created_at=new_user.created_at,
         )
 
         return TokenResponse(access_token=token, token_type="bearer", user=user_resp)

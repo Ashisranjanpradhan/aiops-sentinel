@@ -11,6 +11,13 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1)
 
 
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8)
+    display_name: str = Field(min_length=2, max_length=100)
+    role: str = "analyst"
+
+
 class UserResponse(BaseModel):
     id: str
     email: str

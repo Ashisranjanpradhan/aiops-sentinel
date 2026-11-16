@@ -69,6 +69,58 @@ async def test_auth_login_and_me():
 
 
 @pytest.mark.asyncio
+async def test_auth_register_and_login():
+    import uuid
+
+    unique_email = f"user_{uuid.uuid4().hex[:8]}@example.com"
+    password = "TestStrongPassword99!"
+
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register new user
+        reg_resp = await client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": unique_email,
+                "password": password,
+                "display_name": "Test Engineer",
+                "role": "analyst",
+            },
+        )
+        assert reg_resp.status_code == 200
+        reg_body = reg_resp.json()
+        assert reg_body["data"]["access_token"] is not None
+        assert reg_body["data"]["user"]["email"] == unique_email
+        assert reg_body["data"]["user"]["display_name"] == "Test Engineer"
+
+        # Duplicate register should return 409 CONFLICT
+        dup_resp = await client.post(
+            "/api/v1/auth/register",
+            json={
+                "email": unique_email,
+                "password": password,
+                "display_name": "Duplicate User",
+            },
+        )
+        assert dup_resp.status_code == 409
+        assert dup_resp.json()["error"]["code"] == "CONFLICT"
+
+        # Login with newly registered user
+        login_resp = await client.post(
+            "/api/v1/auth/login",
+            json={"email": unique_email, "password": password},
+        )
+        assert login_resp.status_code == 200
+        token = login_resp.json()["data"]["access_token"]
+
+        # Verify profile via /auth/me
+        me_resp = await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert me_resp.status_code == 200
+        assert me_resp.json()["data"]["email"] == unique_email
+
+
+@pytest.mark.asyncio
 async def test_services_and_topology_api():
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app), base_url="http://test"

@@ -1,5 +1,10 @@
+from pathlib import Path
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+DEFAULT_DB_FILE = PROJECT_ROOT / "aiops_sentinel.db"
 
 
 class Settings(BaseSettings):
@@ -11,7 +16,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///./aiops_sentinel.db"
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{DEFAULT_DB_FILE.as_posix()}"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -35,6 +40,13 @@ class Settings(BaseSettings):
     DEMO_MODE: bool = True
     DATA_DIR: str = "./ml/data"
     ARTIFACT_DIR: str = "./ml/artifacts"
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def resolve_db_url(cls, v: str) -> str:
+        if "sqlite" in v and "./aiops_sentinel.db" in v:
+            return f"sqlite+aiosqlite:///{DEFAULT_DB_FILE.as_posix()}"
+        return v
 
     @field_validator("CORS_ALLOWED_ORIGINS", mode="after")
     @classmethod

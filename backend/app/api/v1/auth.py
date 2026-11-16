@@ -11,11 +11,37 @@ from app.models.entities import User
 from app.schemas.domain import (
     ChangePasswordRequest,
     LoginRequest,
+    RegisterRequest,
     UserResponse,
 )
 from app.services.auth_service import auth_service
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+
+@router.post("/register")
+async def register(
+    payload: RegisterRequest, response: Response, db: AsyncSession = Depends(get_db)
+):
+    token_resp = await auth_service.register_user(
+        db=db,
+        email=payload.email,
+        password=payload.password,
+        display_name=payload.display_name,
+        role=payload.role,
+    )
+
+    response.set_cookie(
+        key=settings.SESSION_COOKIE_NAME,
+        value=token_resp.access_token,
+        max_age=settings.SESSION_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=settings.SESSION_COOKIE_SECURE,
+        samesite=settings.SESSION_COOKIE_SAMESITE,
+        path="/",
+    )
+
+    return make_response(token_resp.model_dump())
 
 
 @router.post("/login")
