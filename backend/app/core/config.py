@@ -79,6 +79,10 @@ class Settings(BaseSettings):
     def resolve_db_url(cls, v: str) -> str:
         if "sqlite" in v and "./aiops_sentinel.db" in v:
             return f"sqlite+aiosqlite:///{DEFAULT_DB_FILE.as_posix()}"
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql+asyncpg://", 1)
+        if v.startswith("postgresql://") and "+asyncpg" not in v:
+            return v.replace("postgresql://", "postgresql+asyncpg://", 1)
         return v
 
     @field_validator("CORS_ALLOWED_ORIGINS", mode="after")
