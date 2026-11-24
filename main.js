@@ -1,5 +1,6 @@
 // AIOps Sentinel GitHub Pages Scripts
 (function () {
+  window.AIOPS_APP_URL = window.AIOPS_APP_URL || 'https://aiops-sentinel-frontend.onrender.com';
   const themeToggle = document.getElementById('theme-toggle');
   const storedTheme = localStorage.getItem('aiops-theme') || 
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
