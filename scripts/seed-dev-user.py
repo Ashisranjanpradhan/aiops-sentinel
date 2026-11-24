@@ -57,7 +57,9 @@ async def seed():
             db.add(admin_user)
             await db.flush()
         else:
-            print("Admin user already exists.")
+            print("Updating admin user password...")
+            admin_user.password_hash = hash_password("sentinel-admin-1234")
+            await db.flush()
 
         # 2. Seed microservices
         services_data = [

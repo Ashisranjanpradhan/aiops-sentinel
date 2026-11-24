@@ -64,12 +64,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [telemetryReady, setTelemetryReady] = useState<boolean>(true);
   const [timeRange, setTimeRange] = useState<string>("3h");
 
-  const isLoginRoute = pathname === "/login";
+  const isAuthRoute = pathname === "/login" || pathname === "/signup" || pathname === "/register";
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
   useEffect(() => {
     // Only verify authentication on protected console routes
-    if (!isLoginRoute && !isPublicRoute) {
+    if (!isAuthRoute && !isPublicRoute) {
       apiClient<any>("/auth/me")
         .then((res) => {
           if (res.data) {
@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         })
         .catch(() => setTelemetryReady(false));
     }
-  }, [pathname, router, isLoginRoute, isPublicRoute]);
+  }, [pathname, router, isAuthRoute, isPublicRoute]);
 
   const handleLogout = async () => {
     try {
@@ -103,8 +103,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
-  // 1. If on login route, display standalone auth card with theme switcher
-  if (isLoginRoute) {
+  // 1. If on auth route (login, signup, register), display standalone auth card with theme switcher
+  if (isAuthRoute) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-center relative transition-colors">
         <div className="absolute top-4 right-4 z-10 flex items-center space-x-2">

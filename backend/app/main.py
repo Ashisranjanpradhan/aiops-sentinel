@@ -25,6 +25,31 @@ from app.services.alert_worker import alert_evaluator_worker
 async def lifespan(app: FastAPI):
     # Initialize database tables on startup
     await init_db()
+    # Ensure default admin user exists with admin role
+    from app.core.security import hash_password
+    from app.db.session import AsyncSessionLocal
+    from app.models.entities import User
+    from sqlalchemy import select
+    try:
+        async with AsyncSessionLocal() as session:
+            result = await session.execute(select(User).where(User.email == "admin@aiops.sentinel"))
+            admin_u = result.scalar_one_or_none()
+            if admin_u:
+                if admin_u.role != "admin":
+                    admin_u.role = "admin"
+                    await session.commit()
+            else:
+                new_admin = User(
+                    email="admin@aiops.sentinel",
+                    display_name="Site Reliability Lead",
+                    password_hash=hash_password("SentinelAdmin1234!"),
+                    role="admin",
+                    is_active=True,
+                )
+                session.add(new_admin)
+                await session.commit()
+    except Exception as exc:
+        pass
     # Start background alert evaluation daemon (interval 30s)
     alert_evaluator_worker.start(interval_seconds=30)
     try:

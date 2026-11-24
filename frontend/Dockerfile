@@ -5,6 +5,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+ARG NEXT_PUBLIC_API_BASE_URL=https://aiops-sentinel-backend.onrender.com
+ARG BACKEND_URL=https://aiops-sentinel-backend.onrender.com
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+    BACKEND_URL=$BACKEND_URL
+
 COPY . .
 RUN npm run build
 

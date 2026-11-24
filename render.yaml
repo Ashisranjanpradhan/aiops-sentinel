@@ -38,6 +38,10 @@ services:
         value: production
       - key: PORT
         value: "3000"
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: "https://aiops-sentinel-backend.onrender.com"
+      - key: BACKEND_URL
+        value: "https://aiops-sentinel-backend.onrender.com"
 
 databases:
   - name: aiops-sentinel-db

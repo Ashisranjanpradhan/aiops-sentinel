@@ -67,10 +67,10 @@ export function PublicHeader() {
               Sign In
             </Link>
             <Link
-              href="/overview"
+              href="/signup"
               className="inline-flex items-center px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm shadow-indigo-600/20 transition-all hover:shadow-indigo-600/30"
             >
-              <span>Get Started</span>
+              <span>Create Account</span>
               <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Link>
           </div>
@@ -117,11 +117,11 @@ export function PublicHeader() {
               Sign In
             </Link>
             <Link
-              href="/overview"
+              href="/signup"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full text-center py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm"
             >
-              Get Started
+              Create Account
             </Link>
           </div>
         </div>
