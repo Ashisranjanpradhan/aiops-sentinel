@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation | AIOps Sentinel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge-success">Developer Guide</span>
+      <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Platform Documentation & Deployment</h1>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
+        Everything required to deploy AIOps Sentinel locally, configure OpenTelemetry pipelines, and enforce readiness in CI/CD.
+      </p>
+    </div>
+
+    <section style="margin-top: 2rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.75rem;">1. Quick Start: Local Staging Boot</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Clone the repository and spin up the complete local observability stack using Docker Compose:
+      </p>
+      <pre># 1. Clone repository
+git clone https://github.com/organization/aiops-sentinel.git
+cd aiops-sentinel
+
+# 2. Configure environment template
+cp .env.example .env
+
+# 3. Boot staging containers
+docker compose -f docker-compose.staging.yml up -d
+
+# 4. Open Gateway
+open http://localhost:8088</pre>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Default admin seed account: <code>admin@aiops.sentinel</code> / <code>sentinel-admin-1234</code>
+      </p>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.75rem;">2. CLI Codebase Assessment</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Run a static production-readiness assessment directly against a local repository or ZIP package:
+      </p>
+      <pre># Run assessment against a local folder
+python -m app.cli.assess --path ./my-service --format sarif --output report.sarif
+
+# Upload a ZIP codebase to the running Sentinel API
+curl -X POST http://localhost:8088/api/v1/assessments/upload \
+  -H "Authorization: Bearer $SENTINEL_TOKEN" \
+  -F "file=@service.zip"</pre>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.75rem;">3. OpenTelemetry Collector Configuration</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Configure microservices to export OTLP traces and metrics to the Sentinel collector endpoint:
+      </p>
+      <pre>export OTEL_EXPORTER_OTLP_ENDPOINT="http://sentinel-gateway:4318"
+export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+export OTEL_SERVICE_NAME="payment-service"</pre>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.75rem;">4. GitHub Actions CI/CD Policy Quality Gate</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Enforce production-readiness in pull requests before code merges into main:
+      </p>
+      <pre>name: Production Readiness Gate
+on: [pull_request]
+
+jobs:
+  readiness-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run AIOps Sentinel Assessment
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/code \
+            ghcr.io/organization/aiops-sentinel-cli:latest \
+            assess --path /code --min-score 80 --sarif results.sarif
+      - name: Upload SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif</pre>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
