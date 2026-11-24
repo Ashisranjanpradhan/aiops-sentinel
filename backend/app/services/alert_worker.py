@@ -1,7 +1,9 @@
 import asyncio
 import logging
 import os
+import tempfile
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy import func, select, text
@@ -48,9 +50,11 @@ class DistributedAdvisoryLock:
     and fcntl.flock file locking fallback for single-host SQLite development.
     """
 
-    def __init__(self, lock_id: int = 424242, lock_path: str = "/tmp/aiops_sentinel_worker.lock"):
+    def __init__(self, lock_id: int = 424242, lock_path: str | None = None):
         self.lock_id = lock_id
-        self.lock_path = lock_path
+        self.lock_path = lock_path or str(
+            Path(tempfile.gettempdir()) / "aiops_sentinel_worker.lock"
+        )
         self._is_postgres = "postgresql" in settings.DATABASE_URL.lower()
         self._file_fp = None
         self._acquired = False

@@ -145,7 +145,7 @@ class WorkspaceManager:
     @staticmethod
     def create_isolated_workspace(assessment_id: str) -> Path:
         """Create a dedicated, isolated scratch workspace directory."""
-        base_dir = Path("/tmp/aiops_assessments")
+        base_dir = Path(settings.ASSESSMENT_WORKSPACE_DIR)
         base_dir.mkdir(parents=True, exist_ok=True)
         workspace = base_dir / assessment_id
         workspace.mkdir(parents=True, exist_ok=True)
@@ -155,7 +155,9 @@ class WorkspaceManager:
     def cleanup_workspace(workspace_dir: Path) -> None:
         """Remove temporary workspace directory cleanly."""
         try:
-            if workspace_dir.exists() and str(workspace_dir).startswith("/tmp/aiops_assessments"):
+            if workspace_dir.exists() and str(workspace_dir).startswith(
+                str(Path(settings.ASSESSMENT_WORKSPACE_DIR))
+            ):
                 shutil.rmtree(workspace_dir, ignore_errors=True)
         except Exception:
             pass
@@ -163,7 +165,7 @@ class WorkspaceManager:
     @classmethod
     def cleanup_assessment_artifacts(cls, assessment_id: str) -> None:
         """Remove all persistent scratch files, reports, and extracted archives for an assessment."""
-        workspace = Path("/tmp/aiops_assessments") / assessment_id
+        workspace = Path(settings.ASSESSMENT_WORKSPACE_DIR) / assessment_id
         cls.cleanup_workspace(workspace)
 
     @classmethod

@@ -1,3 +1,4 @@
+import tempfile
 from pathlib import Path
 from typing import Literal
 
@@ -56,7 +57,7 @@ class Settings(BaseSettings):
     ASSESSMENT_MAX_UPLOAD_BYTES: int = 25 * 1024 * 1024
     ASSESSMENT_MAX_WORKSPACE_BYTES: int = 100 * 1024 * 1024
     ASSESSMENT_MAX_FILE_COUNT: int = 2000
-    ASSESSMENT_WORKSPACE_DIR: str = "/tmp/aiops_assessments"
+    ASSESSMENT_WORKSPACE_DIR: str = str(Path(tempfile.gettempdir()) / "aiops_assessments")
 
     # Contact & Enquiry Management
     CONTACT_RATE_LIMIT_PER_HOUR: int = 100
