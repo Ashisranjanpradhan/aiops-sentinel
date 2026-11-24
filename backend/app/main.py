@@ -48,6 +48,19 @@ async def lifespan(app: FastAPI):
                 )
                 session.add(new_admin)
                 await session.commit()
+            # Ensure read-only demo reviewer account exists
+            demo_res = await session.execute(select(User).where(User.email == "demo@aiops.sentinel"))
+            demo_u = demo_res.scalar_one_or_none()
+            if not demo_u:
+                new_demo = User(
+                    email="demo@aiops.sentinel",
+                    display_name="Demo Reviewer",
+                    password_hash=hash_password("SentinelDemo1234!"),
+                    role="viewer",
+                    is_active=True,
+                )
+                session.add(new_demo)
+                await session.commit()
     except Exception as exc:
         pass
     # Start background alert evaluation daemon (interval 30s)

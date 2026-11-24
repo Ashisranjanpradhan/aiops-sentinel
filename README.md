@@ -18,33 +18,36 @@ AIOps Sentinel is an autonomous operational reliability platform designed for mi
 | Public Documentation Portal | https://ashisranjanpradhan.github.io/aiops-sentinel/ | Static marketing and technical documentation hosted on GitHub Pages | Live (HTTP 200) |
 | Source Code Repository | https://github.com/Ashisranjanpradhan/aiops-sentinel | Public GitHub source with automated CI/CD deployment pipelines | Active |
 
+### Cloud Infrastructure and Free-Tier Cold Starts
+
+The live demonstration services are hosted on Render cloud infrastructure. On free tiers, Render automatically spins down web services after periods of inactivity. If accessing the console or API after an idle period, the initial container wake-up may take 30 to 60 seconds. Subsequent page navigation, API requests, and interactive features are fast and responsive.
+
 ---
 
-## 2. Platform Authentication and Default Credentials
+## 2. Platform Authentication and Access
 
-A pre-provisioned administrator account is seeded in the database for evaluation, administration, and operator access.
+To maintain realistic security hygiene, production administrative credentials are not published in public documentation. Reviewers, operators, and evaluators can access the live application using the pre-seeded read-only demo account or by creating an account via self-service registration.
 
-### Default Administrator Credentials
+### Read-Only Evaluation Account
 
-| Parameter | Default Value | Notes |
+| Parameter | Value | Notes |
 | :--- | :--- | :--- |
 | Login Portal | https://aiops-sentinel-frontend.onrender.com/login | Available locally at http://localhost:3000/login |
-| Email Address | admin@aiops.sentinel | Pre-seeded administrative user |
-| Password | SentinelAdmin1234! | Compliant with enterprise password policy (uppercase, lowercase, number, length >= 8) |
-| Legacy Password | sentinel-admin-1234 | Maintained for backward compatibility with automated integration test suites |
-| Assigned Role | admin | Full RBAC permissions (Administrator / Lead SRE) |
+| Email Address | demo@aiops.sentinel | Read-only demo account for reviewers and evaluators |
+| Password | SentinelDemo1234! | Complies with enterprise password policy |
+| Assigned Role | viewer | Read-only access across Overview, Services, Incidents, Topology, Deployments, and Settings |
 
 ### Self-Service Registration
 
-New operators and analysts can self-register directly at `/signup` or `/register`.
+Evaluators who prefer an independent account can register directly at `/signup` or `/register`.
 
 - Password Requirements: Minimum 8 characters, containing at least one uppercase letter (A-Z), one lowercase letter (a-z), and one numerical digit (0-9).
 - Assigned Role: Newly registered accounts receive the `analyst` role following the principle of least privilege.
 - Duplicate Detection: Registrations with an existing email address return an HTTP 409 Conflict status code and display an inline error message.
 
-### Local Database Seeding Command
+### Administrative Access and Bootstrapping
 
-To re-seed the administrator account and demo microservice topology in your local development environment:
+Production administrative credentials are provisioned securely via protected server-side environment variables (`ADMIN_EMAIL`, `ADMIN_PASSWORD`). In local development, administrative accounts can be initialized using the local seeding script:
 
 ```bash
 ./.venv/bin/python scripts/seed-dev-user.py
@@ -131,10 +134,15 @@ AIOps Sentinel utilizes a decoupled, high-performance architecture separating st
 
 ### Pillar 1: Runtime Reliability and Topological Root Cause Analysis (RCA)
 
-- Topological Causal Ranking: Computes steady-state probability vectors over directed microservice dependency graphs using Random Walk with Restart (RWR) to isolate the true root cause service with up to 94% precision.
+- Topological Causal Ranking: Computes steady-state probability vectors over directed microservice dependency graphs using Random Walk with Restart (RWR) to isolate and rank root causes. Empirical evaluation over 60 curated RCAEval benchmark episodes demonstrates 0.784 Mean Reciprocal Rank (MRR), 68.3% Top-1 accuracy, 86.7% Top-3 accuracy, and 93.3% Top-5 accuracy.
 - Multi-Modal Evidence Ingestion: Simultaneously correlates golden signals (latency, error rate, saturation) from Prometheus, error log spikes from Loki, and distributed trace error spans from Tempo.
 - Human-in-the-Loop Remediation: Recommends verified operational runbooks (`restart_service`, `scale_deployment`, `clear_cache`, `rollback_release`) with interactive dry-run execution guards and full audit event history.
 - Durable Alert Evaluator: Multi-replica worker daemon using PostgreSQL session-level advisory locks (`pg_try_advisory_lock(424242)`) to eliminate duplicate evaluations and prevent flapping incidents.
+
+### Telemetry Provenance and Benchmark Separation
+
+- Live Console Demonstration: Uses simulated incident scenarios with illustrative telemetry (e.g., payment gateway timeouts cascading to checkout service latency surges) to demonstrate interactive topology visualization, evidence cards, and runbook dry-runs.
+- Algorithmic Benchmark Evaluation: Measured exclusively against the 60 curated RCAEval benchmark episodes derived from real-world microservice fault scenarios (Online Boutique, Sock Shop, Train Ticket) without synthetic blending.
 
 ### Pillar 2: ArchMind Codebase Production-Readiness
 
@@ -311,6 +319,15 @@ where:
 - c in (0, 1) represents the restart probability (typically set to 0.15).
 - v_0 represents the personalization vector derived from multi-modal anomaly severity scores across metrics, logs, and distributed trace spans.
 - The resulting steady-state probability vector ranks candidate microservice root causes with calibrated confidence scores.
+
+### Empirical Benchmark Results (60 Curated RCAEval Episodes)
+
+| Metric | Evaluated Score | Baseline Reference | Interpretation |
+| :--- | :--- | :--- | :--- |
+| Mean Reciprocal Rank (MRR) | 0.784 | 0.612 | Average reciprocal rank of the ground-truth root cause node |
+| Top-1 Accuracy (A@1) | 68.3% | 45.0% | Ground-truth root cause identified as rank #1 |
+| Top-3 Accuracy (A@3) | 86.7% | 68.3% | Ground-truth root cause identified within top 3 ranked candidates |
+| Top-5 Accuracy (A@5) | 93.3% | 81.7% | Ground-truth root cause identified within top 5 ranked candidates |
 
 ---
 

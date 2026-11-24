@@ -61,6 +61,26 @@ async def seed():
             admin_user.password_hash = hash_password("sentinel-admin-1234")
             await db.flush()
 
+        # Seed read-only demo reviewer user
+        demo_res = await db.execute(
+            select(User).where(User.email == "demo@aiops.sentinel")
+        )
+        demo_user = demo_res.scalar_one_or_none()
+        if not demo_user:
+            print("Creating read-only demo user: demo@aiops.sentinel")
+            demo_user = User(
+                email="demo@aiops.sentinel",
+                display_name="Demo Reviewer",
+                password_hash=hash_password("SentinelDemo1234!"),
+                role="viewer",
+                is_active=True,
+            )
+            db.add(demo_user)
+            await db.flush()
+        else:
+            demo_user.password_hash = hash_password("SentinelDemo1234!")
+            await db.flush()
+
         # 2. Seed microservices
         services_data = [
             ("frontend", "production", "healthy", 240.5, 0.002, 38.0),

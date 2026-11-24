@@ -52,7 +52,7 @@ export default function DocsPage() {
 
           <div className="p-4 bg-muted/60 rounded-xl font-mono text-xs text-foreground space-y-2 border border-border overflow-x-auto">
             <p className="text-muted-foreground"># Clone repository and enter directory</p>
-            <p className="text-primary font-bold">git clone https://github.com/organization/aiops-sentinel.git</p>
+            <p className="text-primary font-bold">git clone https://github.com/Ashisranjanpradhan/aiops-sentinel.git</p>
             <p className="text-primary font-bold">cd aiops-sentinel</p>
             <br />
             <p className="text-muted-foreground"># Start staging / local environment</p>

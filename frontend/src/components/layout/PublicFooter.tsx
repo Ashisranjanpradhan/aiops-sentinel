@@ -81,7 +81,7 @@ export function PublicFooter() {
               </li>
               <li>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/Ashisranjanpradhan/aiops-sentinel"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
