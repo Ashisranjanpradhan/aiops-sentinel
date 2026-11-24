@@ -190,4 +190,39 @@ test.describe('AIOps Sentinel Frontend Acceptance Tests', () => {
     await page.goto('/overview');
     await expect(page.locator('body')).toBeVisible();
   });
+
+  test('TC-E2E-06: Administrator Console & Incident Remediation Interface', async ({ page }) => {
+    // 1. Log in as Administrator
+    await page.goto('/login');
+    await page.fill('input[type="email"]', ADMIN_EMAIL);
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
+    await page.click('button[type="submit"]');
+    await page.waitForURL('**/overview');
+
+    // 2. Navigate to /admin
+    await page.goto('/admin');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('heading', { name: 'Administration Console' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Administrator Governance' })).toBeVisible();
+    await expect(page.locator('body')).toContainText('RBAC Role Hierarchy');
+    await expect(page.locator('body')).toContainText('Inbound Inquiries Triage');
+    await expect(page.locator('a[href="/settings/enquiries"]').first()).toBeVisible();
+
+    // 3. Navigate to an active incident and inspect Remediation Card
+    await page.goto('/incidents');
+    await page.waitForLoadState('networkidle');
+    const incidentLink = page.locator('a[href^="/incidents/"]').first();
+    if (await incidentLink.isVisible()) {
+      await incidentLink.click();
+      await page.waitForLoadState('networkidle');
+      
+      // Verify Human-in-the-Loop Remediation Card
+      await expect(page.locator('text=Human-in-the-Loop Remediation Runbooks')).toBeVisible();
+      await expect(page.locator('text=Select Authorized Runbook')).toBeVisible();
+      await expect(page.locator('text=Graceful Pod Restart')).toBeVisible();
+      await expect(page.locator('#approval_checkbox')).toBeVisible();
+      await expect(page.locator('textarea[placeholder*="Approved rolling restart"]')).toBeVisible();
+      await expect(page.locator('button:has-text("Authorize & Execute Runbook")')).toBeVisible();
+    }
+  });
 });

@@ -1,6 +1,7 @@
 import pytest
+
 from app.core.errors import NotFoundError, ValidationError
-from app.services.storage_service import LocalStorageBackend, StorageService
+from app.services.storage_service import LocalStorageBackend
 
 
 @pytest.mark.asyncio

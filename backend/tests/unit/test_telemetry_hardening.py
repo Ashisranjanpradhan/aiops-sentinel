@@ -1,4 +1,5 @@
 import pytest
+
 from app.core.config import settings
 from app.core.errors import ValidationError
 from app.integrations.telemetry import (
@@ -69,6 +70,7 @@ async def test_production_telemetry_truthfulness_no_fabrication():
 
         # Metrics: must return empty dict, NEVER synthetic numbers
         from datetime import UTC, datetime
+
         now = datetime.now(UTC)
         metrics = await client.get_service_metrics("checkout", now, now)
         assert metrics == {}

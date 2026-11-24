@@ -66,7 +66,9 @@ async def test_alert_worker_single_cycle():
 
         # 4. Evaluate again without changes -> should NOT create duplicate incident
         results_2 = await worker.evaluate_once(db_session)
-        matching_2 = [r for r in results_2 if r["rule_id"] == rule_id and r["service_id"] == service_id]
+        matching_2 = [
+            r for r in results_2 if r["rule_id"] == rule_id and r["service_id"] == service_id
+        ]
         assert len(matching_2) == 1
         assert matching_2[0]["incident_id"] == incident_id
 
@@ -76,7 +78,9 @@ async def test_alert_worker_single_cycle():
 
         # 6. Evaluate again -> should recover and auto-resolve
         results_3 = await worker.evaluate_once(db_session)
-        matching_3 = [r for r in results_3 if r["rule_id"] == rule_id and r["service_id"] == service_id]
+        matching_3 = [
+            r for r in results_3 if r["rule_id"] == rule_id and r["service_id"] == service_id
+        ]
         assert len(matching_3) == 1
         assert matching_3[0]["status"] == "resolved"
 

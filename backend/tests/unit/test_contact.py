@@ -1,7 +1,7 @@
 import pytest
-from app.core.errors import RateLimitError, ValidationError
+
+from app.core.errors import ValidationError
 from app.db.session import AsyncSessionLocal
-from app.models.entities import ContactEnquiry
 from app.schemas.domain import ContactEnquiryCreate, ContactEnquiryUpdate
 from app.services.contact_service import ContactRateLimiter, ContactService
 
@@ -92,7 +92,9 @@ async def test_contact_admin_lifecycle():
         enquiry = await service.submit_enquiry(db_session, payload, client_ip="198.51.100.14")
 
         # List
-        enquiries, total = await service.list_enquiries(db_session, category_filter="Technical Support")
+        enquiries, total = await service.list_enquiries(
+            db_session, category_filter="Technical Support"
+        )
         assert total >= 1
         assert any(e.id == enquiry.id for e in enquiries)
 
@@ -114,4 +116,3 @@ async def test_contact_admin_lifecycle():
         )
         assert replied.status == "replied"
         assert replied.replied_at is not None
-

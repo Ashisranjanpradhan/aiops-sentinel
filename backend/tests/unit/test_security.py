@@ -1,3 +1,5 @@
+import pytest
+
 from app.api.deps import ROLE_HIERARCHY
 from app.core.config import Settings
 from app.core.security import (
@@ -10,7 +12,6 @@ from app.core.security import (
     validate_password_policy,
     verify_password,
 )
-import pytest
 
 
 def test_password_hashing():

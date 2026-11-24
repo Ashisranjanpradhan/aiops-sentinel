@@ -70,7 +70,7 @@ def test_multi_language_analyzers_js_java_go_rust(tmp_path: Path):
         "public class App {\n"
         "    public static void main(String[] args) throws Exception {\n"
         "        Runtime.getRuntime().exec(args[0]);\n"
-        "        stmt.executeQuery(\"SELECT * FROM accounts WHERE id = \" + args[0]);\n"
+        '        stmt.executeQuery("SELECT * FROM accounts WHERE id = " + args[0]);\n'
         "    }\n"
         "}\n"
     )
@@ -78,9 +78,9 @@ def test_multi_language_analyzers_js_java_go_rust(tmp_path: Path):
     go_file = tmp_path / "main.go"
     go_file.write_text(
         "package main\n"
-        "import (\"os/exec\"; \"fmt\")\n"
+        'import ("os/exec"; "fmt")\n'
         "func main() {\n"
-        "    exec.Command(\"sh\", \"-c\", \"ls\")\n"
+        '    exec.Command("sh", "-c", "ls")\n'
         "    db.Query(fmt.Sprintf(\"SELECT * FROM items WHERE name = '%s'\", name))\n"
         "}\n"
     )
@@ -186,7 +186,11 @@ def test_sarif_and_html_generation(tmp_path: Path):
         "overall_score": 85.0,
         "readiness_level": "NEAR_PRODUCTION",
         "dimension_scores_json": {
-            "Security & Secrets Hygiene": {"score": 80.0, "status": "EXCELLENT", "findings_count": 1}
+            "Security & Secrets Hygiene": {
+                "score": 80.0,
+                "status": "EXCELLENT",
+                "findings_count": 1,
+            }
         },
         "summary": "Sample summary text",
     }
@@ -269,6 +273,7 @@ async def test_workspace_zip_slip_rejection(tmp_path: Path):
     buf.seek(0)
 
     from fastapi import UploadFile
+
     upload = UploadFile(filename="malicious.zip", file=buf)
     dest = tmp_path / "extracted"
     dest.mkdir()
@@ -292,9 +297,50 @@ async def test_workspace_encrypted_zip_rejection(tmp_path: Path):
         raw[cd_idx + 8] |= 0x01
 
     from fastapi import UploadFile
+
     upload = UploadFile(filename="encrypted.zip", file=io.BytesIO(raw))
     dest = tmp_path / "extracted"
     dest.mkdir()
 
     with pytest.raises(ValidationError, match="Encrypted member"):
+        await WorkspaceManager.extract_zip_safely(upload, dest)
+
+
+@pytest.mark.asyncio
+async def test_workspace_symlink_rejection(tmp_path: Path):
+    """Verify archives containing symbolic links are rejected to prevent arbitrary host file disclosure."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zinfo = zipfile.ZipInfo("symlink_target.txt")
+        # Set Unix symlink mode (0o120777 << 16)
+        zinfo.external_attr = 0o120777 << 16
+        zf.writestr(zinfo, "/etc/shadow")
+    buf.seek(0)
+
+    from fastapi import UploadFile
+
+    upload = UploadFile(filename="symlink.zip", file=buf)
+    dest = tmp_path / "extracted"
+    dest.mkdir()
+
+    with pytest.raises(ValidationError, match="Symlink member"):
+        await WorkspaceManager.extract_zip_safely(upload, dest)
+
+
+@pytest.mark.asyncio
+async def test_workspace_zip_bomb_ratio_rejection(tmp_path: Path):
+    """Verify high-compression zip bombs exceeding 100:1 ratio are rejected."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        # 1.5MB of zeroes will compress to < 2KB (ratio > 700:1)
+        zf.writestr("huge_zeroes.dat", b"\x00" * (1500 * 1024))
+    buf.seek(0)
+
+    from fastapi import UploadFile
+
+    upload = UploadFile(filename="zipbomb.zip", file=buf)
+    dest = tmp_path / "extracted"
+    dest.mkdir()
+
+    with pytest.raises(ValidationError, match="potential zip bomb"):
         await WorkspaceManager.extract_zip_safely(upload, dest)

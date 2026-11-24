@@ -488,8 +488,12 @@ async def test_experiments_isolation_forest_and_baselines():
         assert "false_positive_rate" in metrics
         assert "top_1_accuracy" in metrics
         assert "mean_rank" in metrics
-        assert metrics["f1"] > 0.4, f"Expected non-zero F1 for Isolation Forest, got {metrics.get('f1')}"
-        assert metrics["top_3_accuracy"] > 0.3, f"Expected non-zero Top-3 accuracy for Isolation Forest, got {metrics.get('top_3_accuracy')}"
+        assert metrics["f1"] > 0.4, (
+            f"Expected non-zero F1 for Isolation Forest, got {metrics.get('f1')}"
+        )
+        assert metrics["top_3_accuracy"] > 0.3, (
+            f"Expected non-zero Top-3 accuracy for Isolation Forest, got {metrics.get('top_3_accuracy')}"
+        )
 
         # Verify tar.gz contains model.joblib and evaluation_cases.json
         repo_root = Path(__file__).resolve().parent.parent.parent.parent
@@ -516,7 +520,6 @@ async def test_experiments_isolation_forest_and_baselines():
         assert rand_res.status_code == 201
         rand_metrics = rand_res.json()["data"]["metrics_json"]
         assert "mrr" in rand_metrics
-
 
 
 @pytest.mark.asyncio
@@ -620,15 +623,11 @@ async def test_codebase_assessment_lifecycle():
         assert "Production Readiness Report" in html_res.text
 
         # 7. Delete assessment
-        del_res = await client.delete(
-            f"/api/v1/assessments/{assessment_id}", headers=headers
-        )
+        del_res = await client.delete(f"/api/v1/assessments/{assessment_id}", headers=headers)
         assert del_res.status_code == 200
 
         # Verify 404 on deleted assessment
-        get_deleted = await client.get(
-            f"/api/v1/assessments/{assessment_id}", headers=headers
-        )
+        get_deleted = await client.get(f"/api/v1/assessments/{assessment_id}", headers=headers)
         assert get_deleted.status_code == 404
 
 
@@ -781,7 +780,6 @@ async def test_remediation_api_endpoints():
         incidents = inc_list.json()["data"]
         assert len(incidents) > 0
         incident_id = incidents[0]["id"]
-        service_id = incidents[0]["primary_service_id"]
 
         # 4. Attempt execution without human approval -> 422 (ValidationError)
         unapproved = await client.post(
@@ -820,5 +818,3 @@ async def test_remediation_api_endpoints():
         history = history_res.json()["data"]
         assert len(history) > 0
         assert history[0]["event_type"] == "remediation_applied"
-
-

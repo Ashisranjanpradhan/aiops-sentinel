@@ -20,6 +20,7 @@ import {
   Clock,
   Inbox,
   ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { PublicHeader } from "@/components/layout/PublicHeader";
@@ -133,7 +134,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // 3. Authenticated Application Console
   let pageTitle = "Observability Console";
-  if (pathname === "/overview") pageTitle = "Overview";
+  if (pathname === "/admin") pageTitle = "Administration Console";
+  else if (pathname === "/overview") pageTitle = "Overview";
   else if (pathname.startsWith("/services/")) pageTitle = "Services / Detail";
   else if (pathname === "/services") pageTitle = "Services";
   else if (pathname.startsWith("/incidents/")) pageTitle = "Incidents / Investigation";
@@ -202,6 +204,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Bottom Secondary Links & Account */}
         <div className="p-4 border-t border-border dark:border-slate-800 space-y-1">
+          {userRole === "admin" && (
+            <Link
+              href="/admin"
+              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                pathname === "/admin"
+                  ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-hover font-semibold"
+                  : "text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 mr-3 text-text-muted" />
+              Admin Console
+            </Link>
+          )}
           {isStaff && (
             <Link
               href="/settings/enquiries"

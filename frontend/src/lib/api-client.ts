@@ -103,6 +103,14 @@ export async function apiClient<T>(
     }
 
     // 3. Fallback to interactive client-side demo data if backend is not reachable (e.g. GitHub Pages)
+    // Strictly fail-closed for authentication routes: never fake credentials or session state
+    if (endpoint.startsWith("/auth/")) {
+      throw new ApiError(
+        "Authentication service is currently unreachable. Please ensure the backend server is running.",
+        "SERVICE_UNAVAILABLE"
+      );
+    }
+
     const fallback = getDemoFallback(endpoint, options);
     if (fallback) {
       return fallback as ApiResponse<T>;

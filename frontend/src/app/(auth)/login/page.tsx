@@ -11,8 +11,8 @@ export default function LoginPage() {
 
   // Form fields
   const [displayName, setDisplayName] = useState("");
-  const [email, setEmail] = useState("admin@aiops.sentinel");
-  const [password, setPassword] = useState("sentinel-admin-1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -107,8 +107,8 @@ export default function LoginPage() {
     setIsRegisterMode(false);
     setErrorMsg(null);
     setSuccessMsg(null);
-    setEmail("admin@aiops.sentinel");
-    setPassword("sentinel-admin-1234");
+    setEmail("");
+    setPassword("");
   };
 
   return (
@@ -168,7 +168,7 @@ export default function LoginPage() {
 
             {isRegisterMode && (
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Display Name / Full Name</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Display Name</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <User className="h-4 w-4" />
@@ -261,14 +261,6 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
-
-          {/* Dev Seed Credentials helper */}
-          {!isRegisterMode && (
-            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 text-center">
-              <span className="font-medium text-slate-700 dark:text-slate-300 block mb-1">Local Dev Seed Account:</span>
-              <code>admin@aiops.sentinel</code> / <code>sentinel-admin-1234</code>
-            </div>
-          )}
         </div>
       </div>
     </div>

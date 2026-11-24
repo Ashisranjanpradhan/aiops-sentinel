@@ -186,88 +186,9 @@ export const DEMO_INCIDENTS = [
 ];
 
 export function getDemoFallback(endpoint: string, options: RequestInit = {}): any {
-  if (endpoint.startsWith("/auth/login")) {
-    let email = "";
-    let password = "";
-    try {
-      if (options.body) {
-        const parsed = JSON.parse(options.body as string);
-        email = parsed.email;
-        password = parsed.password;
-      }
-    } catch {
-      // ignore
-    }
-    if (email !== "admin@aiops.sentinel" || password !== "sentinel-admin-1234") {
-      return {
-        data: null,
-        meta: { request_id: "req_demo_err" },
-        error: {
-          code: "AUTH_INVALID_CREDENTIALS",
-          message: "Invalid email or password",
-        },
-      };
-    }
-    return {
-      data: {
-        access_token: "demo_standalone_token",
-        user: {
-          id: "u_admin",
-          email: "admin@aiops.sentinel",
-          display_name: "Lead SRE Engineer",
-          role: "admin",
-          is_active: true,
-          created_at: new Date().toISOString(),
-        },
-      },
-      meta: { request_id: "req_demo" },
-      error: null,
-    };
-  }
-
-  if (endpoint.startsWith("/auth/login") || endpoint.startsWith("/auth/register")) {
-    let email = "admin@aiops.sentinel";
-    let displayName = "Lead SRE Engineer";
-    try {
-      if (options.body) {
-        const parsed = JSON.parse(options.body as string);
-        if (parsed.email) email = parsed.email;
-        if (parsed.display_name) displayName = parsed.display_name;
-      }
-    } catch {
-      // ignore
-    }
-    return {
-      data: {
-        access_token: "demo-jwt-token-sentinel-fallback",
-        token_type: "bearer",
-        user: {
-          id: "u_demo_" + Math.random().toString(36).substring(2, 9),
-          email,
-          display_name: displayName,
-          role: "analyst",
-          is_active: true,
-          created_at: new Date().toISOString(),
-        },
-      },
-      meta: { request_id: "req_demo" },
-      error: null,
-    };
-  }
-
-  if (endpoint.startsWith("/auth/me")) {
-    return {
-      data: {
-        id: "u_admin",
-        email: "admin@aiops.sentinel",
-        display_name: "Lead SRE Engineer",
-        role: "admin",
-        is_active: true,
-        created_at: new Date().toISOString(),
-      },
-      meta: { request_id: "req_demo" },
-      error: null,
-    };
+  // Fail-closed for all authentication routes: never fake credentials or session state
+  if (endpoint.startsWith("/auth/")) {
+    return null;
   }
 
   if (endpoint.startsWith("/health/ready")) {

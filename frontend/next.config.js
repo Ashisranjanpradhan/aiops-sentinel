@@ -8,7 +8,7 @@ const nextConfig = {
         source: '/api/v1/:path*',
         destination: process.env.NEXT_PUBLIC_API_BASE_URL 
           ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/:path*`
-          : 'http://localhost:8000/api/v1/:path*',
+          : 'http://127.0.0.1:8000/api/v1/:path*',
       },
     ];
   },

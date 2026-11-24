@@ -22,9 +22,50 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-and-build:
+    name: Validate Container Configurations & Compose Spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Staging Docker Compose Configuration
+        run: |
+          docker compose -f docker-compose.staging.yml config --quiet
+          echo "Staging compose definition is valid."
+
+      - name: Validate Production Docker Compose Configuration
+        run: |
+          docker compose -f docker-compose.production.yml config --quiet
+          echo "Production compose definition is valid."
+
+      - name: Build Backend Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: false
+          tags: aiops-sentinel-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Frontend Container Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          tags: aiops-sentinel-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy-staging:
     name: Deploy to Staging Environment
     runs-on: ubuntu-latest
+    needs: [validate-and-build]
     environment:
       name: staging
       url: https://staging.aiops-sentinel.local
@@ -33,16 +74,40 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify Staging Secrets & Target
+      - name: Execute Staging Deployment or Report Readiness
         run: |
-          echo "Validating staging configuration..."
-          test -n "${{ secrets.STAGING_HOST }}" || echo "Notice: STAGING_HOST secret pending configuration."
-
-      - name: Trigger Staging Container Pull & Rolling Update
-        run: |
-          echo "Executing zero-downtime rolling update on staging..."
-          echo "docker compose -f docker-compose.staging.yml pull"
-          echo "docker compose -f docker-compose.staging.yml up -d --remove-orphans"
+          if [ -n "${{ secrets.STAGING_HOST }}" ] && [ -n "${{ secrets.STAGING_SSH_KEY }}" ]; then
+            echo "Deploying container stack to staging host: ${{ secrets.STAGING_HOST }}..."
+            # Setup SSH
+            mkdir -p ~/.ssh
+            echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H "${{ secrets.STAGING_HOST }}" >> ~/.ssh/known_hosts
+            
+            # Execute rolling update
+            ssh deploy@${{ secrets.STAGING_HOST }} "
+              cd /opt/aiops-sentinel && \
+              git fetch origin main && \
+              git reset --hard origin/main && \
+              docker compose -f docker-compose.staging.yml pull && \
+              docker compose -f docker-compose.staging.yml up -d --remove-orphans && \
+              docker compose -f docker-compose.staging.yml exec -T backend alembic upgrade head
+            "
+            
+            # Health check
+            curl --fail --retry 10 --retry-delay 3 -s http://${{ secrets.STAGING_HOST }}:8000/api/v1/health/live || exit 1
+            echo "Staging deployment successfully verified."
+          else
+            echo "=========================================================================="
+            echo "STAGING DEPLOYMENT READINESS GATE:"
+            echo "Container images & Compose configurations validated."
+            echo "STAGING_HOST or STAGING_SSH_KEY secrets are not configured in this repository."
+            echo "To enable automated staging deployment, configure the following repository secrets:"
+            echo "  - STAGING_HOST: Hostname or IP of the staging server"
+            echo "  - STAGING_SSH_KEY: Deployment SSH private key"
+            echo "  - STAGING_DB_PASSWORD: PostgreSQL staging password"
+            echo "=========================================================================="
+          fi
 
   deploy-production:
     name: Deploy to Production (Manual Approval Required)
@@ -56,14 +121,35 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Verify Production Secrets & Ingress
+      - name: Execute Production Deployment or Report Readiness
         run: |
-          echo "Validating production cryptographic secrets and host..."
-          test -n "${{ secrets.PROD_HOST }}" || echo "Notice: PROD_HOST secret pending configuration."
-
-      - name: Execute Production Database Migrations & Ingress Switch
-        run: |
-          echo "1. Applying Alembic migrations..."
-          echo "2. Pulling verified immutable container digests from ghcr.io..."
-          echo "3. Performing blue/green container switch under NGINX gateway..."
-          echo "4. Running post-deployment health check on /healthz and /api/v1/health/live"
+          if [ -n "${{ secrets.PROD_HOST }}" ] && [ -n "${{ secrets.PROD_SSH_KEY }}" ]; then
+            echo "Deploying verified release to production host: ${{ secrets.PROD_HOST }}..."
+            # Setup SSH
+            mkdir -p ~/.ssh
+            echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H "${{ secrets.PROD_HOST }}" >> ~/.ssh/known_hosts
+            
+            # Execute blue/green or rolling update
+            ssh deploy@${{ secrets.PROD_HOST }} "
+              cd /opt/aiops-sentinel && \
+              docker compose -f docker-compose.production.yml pull && \
+              docker compose -f docker-compose.production.yml exec -T backend alembic upgrade head && \
+              docker compose -f docker-compose.production.yml up -d --remove-orphans
+            "
+            
+            # Verify health
+            curl --fail --retry 15 --retry-delay 2 -s https://${{ secrets.PROD_HOST }}/api/v1/health/live || exit 1
+            echo "Production release successfully deployed and verified."
+          else
+            echo "=========================================================================="
+            echo "PRODUCTION DEPLOYMENT READINESS GATE:"
+            echo "Container images & production Compose configurations validated."
+            echo "PROD_HOST or PROD_SSH_KEY secrets are not configured in this repository."
+            echo "To enable automated production deployment, configure the following secrets:"
+            echo "  - PROD_HOST: Hostname or IP of the production server"
+            echo "  - PROD_SSH_KEY: Production deployment SSH key"
+            echo "  - PROD_SECRET_KEY: Cryptographic token encryption key"
+            echo "=========================================================================="
+          fi

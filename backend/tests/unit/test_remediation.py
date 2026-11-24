@@ -1,4 +1,5 @@
 import pytest
+
 from app.core.errors import ValidationError
 from app.db.session import AsyncSessionLocal
 from app.models.entities import Service, gen_uuid
@@ -21,7 +22,12 @@ async def test_remediation_list_runbooks():
 async def test_remediation_rejects_unauthorized_runbook():
     async with AsyncSessionLocal() as db_session:
         srv_id = gen_uuid()
-        srv = Service(id=srv_id, name=f"test-remediation-{srv_id[:6]}", environment="production", health_status="healthy")
+        srv = Service(
+            id=srv_id,
+            name=f"test-remediation-{srv_id[:6]}",
+            environment="production",
+            health_status="healthy",
+        )
         db_session.add(srv)
         await db_session.commit()
 
@@ -43,7 +49,12 @@ async def test_remediation_rejects_unauthorized_runbook():
 async def test_remediation_requires_human_approval():
     async with AsyncSessionLocal() as db_session:
         srv_id = gen_uuid()
-        srv = Service(id=srv_id, name=f"test-remediation-{srv_id[:6]}", environment="production", health_status="healthy")
+        srv = Service(
+            id=srv_id,
+            name=f"test-remediation-{srv_id[:6]}",
+            environment="production",
+            health_status="healthy",
+        )
         db_session.add(srv)
         await db_session.commit()
 
@@ -64,7 +75,12 @@ async def test_remediation_requires_human_approval():
 async def test_remediation_requires_approval_notes_for_high_risk():
     async with AsyncSessionLocal() as db_session:
         srv_id = gen_uuid()
-        srv = Service(id=srv_id, name=f"test-remediation-{srv_id[:6]}", environment="production", health_status="healthy")
+        srv = Service(
+            id=srv_id,
+            name=f"test-remediation-{srv_id[:6]}",
+            environment="production",
+            health_status="healthy",
+        )
         db_session.add(srv)
         await db_session.commit()
 
@@ -86,7 +102,12 @@ async def test_remediation_requires_approval_notes_for_high_risk():
 async def test_remediation_parameter_validation():
     async with AsyncSessionLocal() as db_session:
         srv_id = gen_uuid()
-        srv = Service(id=srv_id, name=f"test-remediation-{srv_id[:6]}", environment="production", health_status="healthy")
+        srv = Service(
+            id=srv_id,
+            name=f"test-remediation-{srv_id[:6]}",
+            environment="production",
+            health_status="healthy",
+        )
         db_session.add(srv)
         await db_session.commit()
 
@@ -110,7 +131,12 @@ async def test_remediation_parameter_validation():
 async def test_remediation_successful_execution():
     async with AsyncSessionLocal() as db_session:
         srv_id = gen_uuid()
-        srv = Service(id=srv_id, name=f"payment-gateway-{srv_id[:6]}", environment="production", health_status="healthy")
+        srv = Service(
+            id=srv_id,
+            name=f"payment-gateway-{srv_id[:6]}",
+            environment="production",
+            health_status="healthy",
+        )
         db_session.add(srv)
         await db_session.commit()
 

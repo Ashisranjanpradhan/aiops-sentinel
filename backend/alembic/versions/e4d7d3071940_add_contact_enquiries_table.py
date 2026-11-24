@@ -5,9 +5,11 @@ Revises: d3c6c2060830
 Create Date: 2026-11-24 00:20:00.000000
 
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -36,9 +38,15 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["replied_by_user_id"], ["users.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_contact_enquiries_email"), "contact_enquiries", ["email"], unique=False)
-    op.create_index(op.f("ix_contact_enquiries_category"), "contact_enquiries", ["category"], unique=False)
-    op.create_index(op.f("ix_contact_enquiries_status"), "contact_enquiries", ["status"], unique=False)
+    op.create_index(
+        op.f("ix_contact_enquiries_email"), "contact_enquiries", ["email"], unique=False
+    )
+    op.create_index(
+        op.f("ix_contact_enquiries_category"), "contact_enquiries", ["category"], unique=False
+    )
+    op.create_index(
+        op.f("ix_contact_enquiries_status"), "contact_enquiries", ["status"], unique=False
+    )
 
 
 def downgrade() -> None:
