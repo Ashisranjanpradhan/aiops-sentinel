@@ -2,6 +2,8 @@
 
 **A Production-Grade Software Reliability & Engineering Intelligence Platform.**
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Ashisranjanpradhan/aiops-sentinel)
+
 > **Status:** Production-Deployable Enterprise Architecture. Fully verified across backend (FastAPI, PostgreSQL asyncpg pool, Redis Streams, Celery/TaskQueue), frontend (Next.js 14 Standalone SSR, Tailwind CSS, Playwright E2E), ML engine (`aiops_ml`, multi-seed RCAEval benchmark, scikit-learn Isolation Forest), and container infrastructure (Docker Compose, Nginx Reverse Proxy, Prometheus `/metrics`).
 
 ---
