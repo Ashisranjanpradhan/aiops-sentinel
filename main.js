@@ -66,8 +66,9 @@
           <div style="background-color: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
             <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 0.5rem;">Access Environments:</div>
             <ul style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.6;">
+              <li><strong>1-Click Free Cloud:</strong> <a href="https://render.com/deploy?repo=https://github.com/Ashisranjanpradhan/aiops-sentinel" target="_blank" rel="noopener" style="font-weight: 600; color: var(--primary);">Deploy to Render (PostgreSQL + FastAPI + Next.js)</a></li>
               <li><strong>Local Dev:</strong> Console runs at <code>http://localhost:3000</code></li>
-              <li><strong>Self-Hosted / Cloud:</strong> Deploy via <code>docker compose up -d</code></li>
+              <li><strong>Self-Hosted / Docker:</strong> Run <code>docker compose up -d</code></li>
             </ul>
           </div>
           <div style="margin-bottom: 1.25rem;">
@@ -78,9 +79,10 @@
               style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background-color: var(--surface-card); color: var(--text-primary); font-size: 0.85rem; font-family: var(--font-mono);" />
           </div>
         </div>
-        <div class="modal-footer">
-          <button id="modal-launch-btn" class="btn-primary" style="cursor: pointer; border: none;">Connect to Console</button>
-          <a href="docs.html#deployment" class="btn-secondary">Deployment Runbook</a>
+        <div class="modal-footer" style="flex-wrap: wrap; gap: 0.5rem;">
+          <a href="https://render.com/deploy?repo=https://github.com/Ashisranjanpradhan/aiops-sentinel" target="_blank" rel="noopener" class="btn-primary" style="background-color: #008489;">Deploy to Render</a>
+          <button id="modal-launch-btn" class="btn-primary" style="cursor: pointer; border: none;">Connect Local</button>
+          <a href="docs.html#deployment" class="btn-secondary">Runbook</a>
         </div>
       </div>
     `;
