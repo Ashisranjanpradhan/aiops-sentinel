@@ -84,6 +84,7 @@ dump.rdb
 /ml/artifacts/*.joblib
 /ml/artifacts/*.pkl
 /ml/artifacts/*.onnx
+/ml/artifacts/runs/
 !/ml/artifacts/.gitkeep
 
 # Application logs
