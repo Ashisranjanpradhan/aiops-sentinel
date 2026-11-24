@@ -54,7 +54,11 @@ class ForbiddenError(AppError):
 
 
 class RateLimitError(AppError):
-    def __init__(self, message: str = "Rate limit exceeded. Please retry later.", retry_after_seconds: int = 60):
+    def __init__(
+        self,
+        message: str = "Rate limit exceeded. Please retry later.",
+        retry_after_seconds: int = 60,
+    ):
         super().__init__(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             code="RATE_LIMIT_EXCEEDED",

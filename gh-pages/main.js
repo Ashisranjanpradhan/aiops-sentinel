@@ -24,6 +24,15 @@
     });
   }
 
+  // Mobile menu toggle
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const navLinks = document.querySelector('.nav-links');
+  if (mobileBtn && navLinks) {
+    mobileBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('mobile-open');
+    });
+  }
+
   // Active navigation highlighting
   const currentPath = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(link => {

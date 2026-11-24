@@ -115,7 +115,9 @@ class AssessmentService:
             meta = (a.dimension_scores_json or {}).get("_meta", {})
             profile = meta.get("profile", "Generic Software Repository")
             mode = meta.get("execution_mode", "full_assessment")
-            clean_dim_scores = {k: v for k, v in (a.dimension_scores_json or {}).items() if k != "_meta"}
+            clean_dim_scores = {
+                k: v for k, v in (a.dimension_scores_json or {}).items() if k != "_meta"
+            }
 
             responses.append(
                 CodebaseAssessmentResponse(
@@ -158,9 +160,13 @@ class AssessmentService:
             raise NotFoundError("CodebaseAssessment", assessment_id)
 
         # Enforce authenticated ownership or admin/operator privilege
-        if current_user and a.created_by_user_id and a.created_by_user_id != current_user.id:
-            if current_user.role not in ("admin", "operator"):
-                raise ForbiddenError("You are not authorized to access this assessment.")
+        if (
+            current_user
+            and a.created_by_user_id
+            and a.created_by_user_id != current_user.id
+            and current_user.role not in ("admin", "operator")
+        ):
+            raise ForbiddenError("You are not authorized to access this assessment.")
 
         findings_resp = [
             AssessmentFindingResponse(
@@ -183,7 +189,9 @@ class AssessmentService:
         meta = (a.dimension_scores_json or {}).get("_meta", {})
         profile = meta.get("profile", "Generic Software Repository")
         mode = meta.get("execution_mode", "full_assessment")
-        clean_dim_scores = {k: v for k, v in (a.dimension_scores_json or {}).items() if k != "_meta"}
+        clean_dim_scores = {
+            k: v for k, v in (a.dimension_scores_json or {}).items() if k != "_meta"
+        }
 
         return CodebaseAssessmentDetailResponse(
             id=a.id,
@@ -221,9 +229,12 @@ class AssessmentService:
             raise NotFoundError("CodebaseAssessment", assessment_id)
 
         # Ownership check
-        if a.created_by_user_id and a.created_by_user_id != current_user.id:
-            if current_user.role not in ("admin", "operator"):
-                raise ForbiddenError("You cannot delete an assessment uploaded by another user.")
+        if (
+            a.created_by_user_id
+            and a.created_by_user_id != current_user.id
+            and current_user.role not in ("admin", "operator")
+        ):
+            raise ForbiddenError("You cannot delete an assessment uploaded by another user.")
 
         await db.delete(a)
         await db.commit()
@@ -360,7 +371,11 @@ class AssessmentService:
         job_id = gen_uuid()
         workspace_dir = WorkspaceManager.create_isolated_workspace(assessment_id)
 
-        source_type = "zip" if len(files) == 1 and files[0].filename and files[0].filename.endswith(".zip") else "files"
+        source_type = (
+            "zip"
+            if len(files) == 1 and files[0].filename and files[0].filename.endswith(".zip")
+            else "files"
+        )
         total_size = 0
         file_count = 0
 
@@ -380,7 +395,9 @@ class AssessmentService:
             if f.is_file():
                 total_size += f.stat().st_size
 
-        clean_name = project_name.strip() or (files[0].filename or "Uploaded Codebase").replace(".zip", "")
+        clean_name = project_name.strip() or (files[0].filename or "Uploaded Codebase").replace(
+            ".zip", ""
+        )
 
         assessment = CodebaseAssessment(
             id=assessment_id,
@@ -435,7 +452,9 @@ class AssessmentService:
                     CodebaseDetector.scan_workspace, workspace_dir
                 )
 
-                resolved_profile = detector_info["profile"] if profile in ("auto", "", None) else profile
+                resolved_profile = (
+                    detector_info["profile"] if profile in ("auto", "", None) else profile
+                )
 
                 # Stage 2: Secrets and credentials scanner (50%)
                 await self._update_job(db, job_id, 50, "Scanning credentials and secrets")
@@ -449,13 +468,17 @@ class AssessmentService:
                     ast_findings = []
                 else:
                     ast_findings = await asyncio.to_thread(
-                        MultiLanguageCodeAnalyzer.analyze_files, workspace_dir, detector_info["inventory"]
+                        MultiLanguageCodeAnalyzer.analyze_files,
+                        workspace_dir,
+                        detector_info["inventory"],
                     )
 
                 # Stage 4: 10-dimension evaluation and scoring (90%)
                 await self._update_job(db, job_id, 90, "Evaluating 10 readiness dimensions")
                 raw_findings = secret_findings + ast_findings
-                is_partial = detector_info["total_files"] < 3 and detector_info.get("source_type") != "zip"
+                is_partial = (
+                    detector_info["total_files"] < 3 and detector_info.get("source_type") != "zip"
+                )
 
                 (
                     score,
@@ -473,7 +496,9 @@ class AssessmentService:
                     is_partial,
                 )
 
-                capability_matrix = MultiLanguageCodeAnalyzer.get_capability_matrix(detector_info["languages"])
+                capability_matrix = MultiLanguageCodeAnalyzer.get_capability_matrix(
+                    detector_info["languages"]
+                )
 
                 # Store metadata inside dimension_scores_json under _meta key
                 dim_scores["_meta"] = {
@@ -537,7 +562,9 @@ class AssessmentService:
                 logger.exception("Assessment %s failed during pipeline execution", assessment_id)
                 await db.rollback()
                 try:
-                    job_res = await db.execute(select(AssessmentJob).where(AssessmentJob.id == job_id))
+                    job_res = await db.execute(
+                        select(AssessmentJob).where(AssessmentJob.id == job_id)
+                    )
                     job = job_res.scalar_one()
                     job.status = "failed"
                     job.error_message = str(e)
@@ -548,9 +575,7 @@ class AssessmentService:
             finally:
                 WorkspaceManager.cleanup_workspace(workspace_dir)
 
-    async def _update_job(
-        self, db: AsyncSession, job_id: str, progress: int, stage: str
-    ) -> None:
+    async def _update_job(self, db: AsyncSession, job_id: str, progress: int, stage: str) -> None:
         res = await db.execute(select(AssessmentJob).where(AssessmentJob.id == job_id))
         job = res.scalar_one_or_none()
         if job:

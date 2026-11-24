@@ -84,7 +84,12 @@ def _extract_zip_members_sync(tmp_path: str, resolved_dest: Path) -> int:
 
             # 6. Path normalization and traversal checks
             norm_path = os.path.normpath(member.filename)
-            if norm_path.startswith("..") or os.path.isabs(norm_path) or "/../" in norm_path or "\\..\\" in norm_path:
+            if (
+                norm_path.startswith("..")
+                or os.path.isabs(norm_path)
+                or "/../" in norm_path
+                or "\\..\\" in norm_path
+            ):
                 raise ValidationError(
                     f"Security Violation: Zip-slip path traversal attempted in member '{member.filename}'."
                 )

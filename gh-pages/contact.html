@@ -26,7 +26,8 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
   </header>
@@ -45,31 +46,30 @@
         <h3>GitHub Collaboration</h3>
         <p>AIOps Sentinel is developed transparently on GitHub:</p>
         <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-          <li><strong>Repository:</strong> Source code, Dockerfiles, and CI/CD pipelines</li>
-          <li><strong>Issue Tracker:</strong> Bug reports, technical enhancement proposals</li>
-          <li><strong>Discussions:</strong> Architecture design proposals and RCA questions</li>
-          <li><strong>Releases:</strong> Versioned release notes and container image tags</li>
+          <li><strong>Repository:</strong> <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" target="_blank" rel="noopener">Ashisranjanpradhan/aiops-sentinel</a></li>
+          <li><strong>Issue Tracker:</strong> <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel/issues" target="_blank" rel="noopener">Bug reports & feature requests</a></li>
+          <li><strong>Discussions:</strong> <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel/discussions" target="_blank" rel="noopener">Community discussions & ideas</a></li>
+          <li><strong>Security Policy:</strong> <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel/blob/main/SECURITY.md" target="_blank" rel="noopener">Vulnerability disclosure instructions</a></li>
         </ul>
       </div>
 
       <div class="card">
-        <h3>Direct Engineering Inquiries</h3>
-        <p>Contact channels for enterprise inquiries and disclosures:</p>
+        <h3>Static Documentation Notice</h3>
+        <p>This GitHub Pages deployment serves static public project documentation and research metrics:</p>
         <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
-          <li><strong>General Support:</strong> <code>support@aiops-sentinel.local</code></li>
-          <li><strong>Security Disclosures:</strong> <code>security@aiops-sentinel.local</code></li>
-          <li><strong>Research Collaboration:</strong> <code>research@aiops-sentinel.local</code></li>
-          <li><strong>SLA Target:</strong> 24-hour business day response commitment</li>
+          <li><strong>No Backend Ingestion:</strong> Static Pages hosting does not process form submissions or collect personal data.</li>
+          <li><strong>Direct Feedback:</strong> Maintainers review inquiries submitted through GitHub Issues and Discussions.</li>
+          <li><strong>Vulnerability Reports:</strong> Security researchers should consult SECURITY.md for responsible reporting.</li>
+          <li><strong>Open Source:</strong> Licensed under Apache 2.0 for community audit and collaboration.</li>
         </ul>
       </div>
     </div>
 
     <section style="margin-top: 3.5rem;">
       <div class="card" style="background-color: var(--surface-raised);">
-        <h3>Live Sentinel Application Access</h3>
-        <p style="margin-top: 0.5rem;">
-          The live interactive application runs separately on production infrastructure with full PostgreSQL persistence, 
-          Redis queues, and background alert workers. Access the live console using your authorized corporate credentials.
+        <h3>Dynamic Application Deployment</h3>
+        <p style="margin-top: 0.5rem; color: var(--text-secondary);">
+          GitHub Pages hosts only the static project website and documentation. The dynamic AIOps Sentinel software platform (Next.js web console, FastAPI backend, PostgreSQL database, Redis queues, and OpenTelemetry pipelines) runs on separate containerized cloud hosting. To deploy the runtime application, follow the local Docker deployment guide in <a href="docs.html">Documentation</a>.
         </p>
       </div>
     </section>

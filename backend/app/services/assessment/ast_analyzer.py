@@ -1,7 +1,7 @@
 import ast
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 
 class PythonSecurityVisitor(ast.NodeVisitor):
@@ -64,7 +64,11 @@ class PythonSecurityVisitor(ast.NodeVisitor):
         # 3. subprocess with shell=True
         if func_name in ("Popen", "run", "call", "check_call", "check_output"):
             for kw in node.keywords:
-                if kw.arg == "shell" and isinstance(kw.value, ast.Constant) and kw.value.value is True:
+                if (
+                    kw.arg == "shell"
+                    and isinstance(kw.value, ast.Constant)
+                    and kw.value.value is True
+                ):
                     self.findings.append(
                         {
                             "dimension": "Security & Secrets Hygiene",
@@ -145,7 +149,7 @@ class MultiLanguageCodeAnalyzer:
     Java, Go, and Rust files.
     """
 
-    SUPPORTED_CAPABILITIES = {
+    SUPPORTED_CAPABILITIES: ClassVar[dict[str, Any]] = {
         "Python": {
             "tier": "Full AST Analysis",
             "status": "SUPPORTED",
@@ -213,7 +217,9 @@ class MultiLanguageCodeAnalyzer:
     }
 
     @classmethod
-    def get_capability_matrix(cls, languages_detected: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def get_capability_matrix(
+        cls, languages_detected: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         matrix = []
         for l_item in languages_detected:
             name = l_item["language"]
@@ -221,21 +227,25 @@ class MultiLanguageCodeAnalyzer:
             cap = cls.SUPPORTED_CAPABILITIES.get(base_lang) or cls.SUPPORTED_CAPABILITIES.get(name)
 
             if cap:
-                matrix.append({
-                    "language": name,
-                    "analysis_tier": cap["tier"],
-                    "status": cap["status"],
-                    "categories": cap["analyzed_categories"],
-                    "files_count": l_item.get("files", 0),
-                })
+                matrix.append(
+                    {
+                        "language": name,
+                        "analysis_tier": cap["tier"],
+                        "status": cap["status"],
+                        "categories": cap["analyzed_categories"],
+                        "files_count": l_item.get("files", 0),
+                    }
+                )
             else:
-                matrix.append({
-                    "language": name,
-                    "analysis_tier": "Pattern & Configuration Inspection",
-                    "status": "PARTIAL",
-                    "categories": ["Secret Scanning", "Configuration Hygiene"],
-                    "files_count": l_item.get("files", 0),
-                })
+                matrix.append(
+                    {
+                        "language": name,
+                        "analysis_tier": "Pattern & Configuration Inspection",
+                        "status": "PARTIAL",
+                        "categories": ["Secret Scanning", "Configuration Hygiene"],
+                        "files_count": l_item.get("files", 0),
+                    }
+                )
         return matrix
 
     @classmethod
@@ -331,7 +341,9 @@ class MultiLanguageCodeAnalyzer:
                 )
 
             # Child process execution
-            if "child_process" in line or ("exec(" in line and ("require" in line or "import" in line)):
+            if "child_process" in line or (
+                "exec(" in line and ("require" in line or "import" in line)
+            ):
                 findings.append(
                     {
                         "dimension": "Security & Secrets Hygiene",
@@ -347,7 +359,7 @@ class MultiLanguageCodeAnalyzer:
                 )
 
             # Insecure TLS rejection
-            norm_line = line.lower().replace(" ", "").replace('"', '').replace("'", "")
+            norm_line = line.lower().replace(" ", "").replace('"', "").replace("'", "")
             if "rejectunauthorized:false" in norm_line:
                 findings.append(
                     {
@@ -364,7 +376,9 @@ class MultiLanguageCodeAnalyzer:
                 )
 
             # Sensitive token storage in localStorage
-            if "localStorage.setItem" in line and any(k in line.lower() for k in ("token", "jwt", "auth", "secret", "password")):
+            if "localStorage.setItem" in line and any(
+                k in line.lower() for k in ("token", "jwt", "auth", "secret", "password")
+            ):
                 findings.append(
                     {
                         "dimension": "Security & Secrets Hygiene",
@@ -380,9 +394,7 @@ class MultiLanguageCodeAnalyzer:
                 )
 
     @classmethod
-    def _analyze_java(
-        cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]
-    ) -> None:
+    def _analyze_java(cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]) -> None:
         for idx, line in enumerate(lines, start=1):
             stripped = line.strip()
             if stripped.startswith(("//", "/*", "*")):
@@ -437,9 +449,7 @@ class MultiLanguageCodeAnalyzer:
                 )
 
     @classmethod
-    def _analyze_go(
-        cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]
-    ) -> None:
+    def _analyze_go(cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]) -> None:
         for idx, line in enumerate(lines, start=1):
             stripped = line.strip()
             if stripped.startswith("//"):
@@ -478,7 +488,10 @@ class MultiLanguageCodeAnalyzer:
                 )
 
             # SQL formatting
-            if any(q in line for q in ("db.Query(", "db.QueryRow(", "db.Exec(")) and "fmt.Sprintf" in line:
+            if (
+                any(q in line for q in ("db.Query(", "db.QueryRow(", "db.Exec("))
+                and "fmt.Sprintf" in line
+            ):
                 findings.append(
                     {
                         "dimension": "Database & Data Modeling",
@@ -494,9 +507,7 @@ class MultiLanguageCodeAnalyzer:
                 )
 
     @classmethod
-    def _analyze_rust(
-        cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]
-    ) -> None:
+    def _analyze_rust(cls, rel_path: str, lines: list[str], findings: list[dict[str, Any]]) -> None:
         for idx, line in enumerate(lines, start=1):
             stripped = line.strip()
             if stripped.startswith("//"):
@@ -519,7 +530,9 @@ class MultiLanguageCodeAnalyzer:
                 )
 
             # Panic on unwrap in production
-            if ".unwrap()" in line and not any(t in rel_path.lower() for t in ("test", "bench", "example")):
+            if ".unwrap()" in line and not any(
+                t in rel_path.lower() for t in ("test", "bench", "example")
+            ):
                 findings.append(
                     {
                         "dimension": "Reliability & Fault Tolerance",

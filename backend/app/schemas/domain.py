@@ -614,6 +614,7 @@ class ContactEnquiryCreate(BaseModel):
         if self.category not in VALID_ENQUIRY_CATEGORIES:
             allowed = ", ".join(sorted(VALID_ENQUIRY_CATEGORIES))
             from app.core.errors import ValidationError
+
             raise ValidationError(f"Category must be one of: [{allowed}]")
 
 
@@ -637,6 +638,3 @@ class ContactEnquiryResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
-
-
-

@@ -71,6 +71,7 @@ app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
 app.add_exception_handler(Exception, unhandled_error_handler)
 
+
 # Prometheus Metrics Scraping Endpoints
 @app.get("/metrics", include_in_schema=False)
 @app.get(f"{settings.API_V1_PREFIX}/metrics", include_in_schema=False)

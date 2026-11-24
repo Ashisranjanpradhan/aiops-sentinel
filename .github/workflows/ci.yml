@@ -20,6 +20,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch All Remote Branches
+        run: git fetch --all --tags --prune
+
       - name: Run Gitleaks Detection
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -52,6 +55,7 @@ jobs:
         run: |
           . .venv/bin/activate
           ruff check backend/app ml/src
+          ruff format --check backend/app ml/src
 
       - name: Security Static Analysis (Bandit)
         run: |

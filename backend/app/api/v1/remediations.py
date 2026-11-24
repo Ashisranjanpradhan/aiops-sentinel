@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,8 +8,6 @@ from app.db.session import get_db
 from app.models.entities import Incident, IncidentEvent, User
 from app.schemas.domain import (
     RemediationExecutionRequest,
-    RemediationExecutionResponse,
-    RunbookDefinition,
 )
 from app.services.remediation_service import remediation_service
 
@@ -55,6 +53,7 @@ async def execute_incident_remediation(
     incident = inc_res.scalar_one_or_none()
     if not incident:
         from app.core.errors import NotFoundError
+
         raise NotFoundError("Incident", incident_id)
 
     res = await remediation_service.execute_remediation(

@@ -90,16 +90,15 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def validate_production_security(self) -> "Settings":
         """Fail fast in staging and production if secrets are insecure, default, or misconfigured."""
-        if self.APP_ENV in ["staging", "production"]:
-            if (
-                not self.SESSION_SECRET
-                or self.SESSION_SECRET in KNOWN_INSECURE_SECRETS
-                or len(self.SESSION_SECRET) < 32
-            ):
-                raise ValueError(
-                    f"CRITICAL SECURITY CONFIGURATION ERROR: SESSION_SECRET must be at least 32 characters "
-                    f"and cannot be a default or placeholder string when APP_ENV={self.APP_ENV}."
-                )
+        if self.APP_ENV in ["staging", "production"] and (
+            not self.SESSION_SECRET
+            or self.SESSION_SECRET in KNOWN_INSECURE_SECRETS
+            or len(self.SESSION_SECRET) < 32
+        ):
+            raise ValueError(
+                f"CRITICAL SECURITY CONFIGURATION ERROR: SESSION_SECRET must be at least 32 characters "
+                f"and cannot be a default or placeholder string when APP_ENV={self.APP_ENV}."
+            )
 
         if self.APP_ENV == "production":
             # Production requires PostgreSQL with asyncpg driver
@@ -122,7 +121,7 @@ class Settings(BaseSettings):
                 ("LOKI_URL", self.LOKI_URL),
                 ("TEMPO_URL", self.TEMPO_URL),
             ]:
-                if not url or not (url.startswith("http://") or url.startswith("https://")):
+                if not url or not url.startswith(("http://", "https://")):
                     raise ValueError(
                         f"CRITICAL OBSERVABILITY CONFIGURATION ERROR: {name} must be a valid http/https URL in production."
                     )

@@ -1,20 +1,3 @@
-import math
-import random
-from datetime import UTC, datetime, timedelta
-
-import httpx
-
-from app.core.config import settings
-from app.schemas.domain import (
-    LogRecord,
-    MetricPoint,
-    MetricSeries,
-    TelemetrySourceStatus,
-    TraceRecord,
-    TraceSpan,
-)
-
-
 import ipaddress
 import logging
 import math
@@ -224,7 +207,9 @@ class TelemetryClient:
             logger.debug("Live Prometheus query failed for %s: %s", service_name, e)
 
         if not is_simulation_allowed():
-            logger.info("Production mode: Suppressing synthetic metrics for service %s", service_name)
+            logger.info(
+                "Production mode: Suppressing synthetic metrics for service %s", service_name
+            )
             return {}
 
         # Generate deterministic synthetic telemetry matching the service context in Demo Mode
@@ -301,7 +286,9 @@ class TelemetryClient:
             logger.debug("Live Tempo query failed for %s: %s", service_name, e)
 
         if not is_simulation_allowed():
-            logger.info("Production mode: Suppressing synthetic traces for service %s", service_name)
+            logger.info(
+                "Production mode: Suppressing synthetic traces for service %s", service_name
+            )
             return []
         return self._generate_simulated_traces(service_name, start_time, end_time, limit)
 

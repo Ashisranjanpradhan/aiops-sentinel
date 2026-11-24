@@ -3,7 +3,6 @@ import logging
 import time
 from collections import defaultdict
 from datetime import UTC, datetime
-from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -61,14 +60,20 @@ class ContactService:
     ) -> ContactEnquiryResponse:
         # 1. Honeypot check
         if payload.website:
-            logger.warning("Spam honeypot triggered by IP %s (website field: %s)", client_ip, payload.website)
+            logger.warning(
+                "Spam honeypot triggered by IP %s (website field: %s)", client_ip, payload.website
+            )
             raise ValidationError("Form submission failed anti-spam verification.")
 
         # 2. Timing check (if client timestamp passed, must take >= 1.5s to type/submit)
         if payload.client_timestamp:
             submission_duration = time.time() - payload.client_timestamp
             if 0 < submission_duration < 1.0:
-                logger.warning("Automated sub-second submission detected from IP %s (%.2fs)", client_ip, submission_duration)
+                logger.warning(
+                    "Automated sub-second submission detected from IP %s (%.2fs)",
+                    client_ip,
+                    submission_duration,
+                )
                 raise ValidationError("Automated bot submission detected.")
 
         # 3. Rate limiting check
@@ -103,7 +108,12 @@ class ContactService:
         await db.refresh(enquiry)
 
         contact_rate_limiter.record_attempt(client_ip)
-        logger.info("New contact enquiry [%s] created from IP %s for category '%s'", enquiry.id, client_ip, clean_category)
+        logger.info(
+            "New contact enquiry [%s] created from IP %s for category '%s'",
+            enquiry.id,
+            client_ip,
+            clean_category,
+        )
 
         # 7. Safe notification dispatch
         self._dispatch_safe_notification(enquiry)
@@ -185,7 +195,11 @@ class ContactService:
         total_res = await db.execute(count_query)
         total = total_res.scalar_one()
 
-        query = query.order_by(ContactEnquiry.created_at.desc()).offset((page - 1) * page_size).limit(page_size)
+        query = (
+            query.order_by(ContactEnquiry.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
         res = await db.execute(query)
         enquiries = res.scalars().all()
 
@@ -223,7 +237,12 @@ class ContactService:
         await db.commit()
         await db.refresh(enquiry)
 
-        logger.info("Enquiry '%s' updated by user '%s' (status=%s)", enquiry_id, actor_user_id, enquiry.status)
+        logger.info(
+            "Enquiry '%s' updated by user '%s' (status=%s)",
+            enquiry_id,
+            actor_user_id,
+            enquiry.status,
+        )
         return self._to_response(enquiry)
 
 

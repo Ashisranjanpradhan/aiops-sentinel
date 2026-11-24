@@ -101,10 +101,14 @@ class CodebaseDetector:
             languages_summary.append({"language": lang, "files": count, "percentage": pct})
 
         frameworks = cls._detect_frameworks(workspace_dir, file_inventory)
-        detected_profile = cls._detect_profile(languages_summary, frameworks, file_inventory, workspace_dir)
+        detected_profile = cls._detect_profile(
+            languages_summary, frameworks, file_inventory, workspace_dir
+        )
         project_tree = cls._generate_project_tree(workspace_dir, file_inventory)
         structural_components = cls._detect_structural_components(workspace_dir, file_inventory)
-        missing_critical_files = cls._detect_missing_critical_files(workspace_dir, file_inventory, detected_profile)
+        missing_critical_files = cls._detect_missing_critical_files(
+            workspace_dir, file_inventory, detected_profile
+        )
 
         return {
             "total_files": len(file_inventory),
@@ -126,7 +130,9 @@ class CodebaseDetector:
         file_names = {f.name.lower() for f in files}
 
         # Container & Orchestration
-        if "dockerfile" in file_names or any(f.name.lower().startswith("dockerfile.") for f in files):
+        if "dockerfile" in file_names or any(
+            f.name.lower().startswith("dockerfile.") for f in files
+        ):
             detected.add("Docker")
         if any("compose" in name for name in file_names):
             detected.add("Docker Compose")
@@ -263,7 +269,9 @@ class CodebaseDetector:
         # 2. Microservices Application
         if "Docker Compose" in framework_set or "Kubernetes" in framework_set:
             rel_files = [str(f.relative_to(workspace_dir)) for f in files]
-            service_indicators = [f for f in rel_files if "service" in f.lower() or "microservice" in f.lower()]
+            service_indicators = [
+                f for f in rel_files if "service" in f.lower() or "microservice" in f.lower()
+            ]
             if len(service_indicators) > 2 or any("services/" in f for f in rel_files):
                 return "Microservices Application"
 
@@ -272,7 +280,9 @@ class CodebaseDetector:
             return "Python Backend/API"
 
         # 4. Java Enterprise Application
-        if "Java" in primary_lang or framework_set.intersection({"Spring Boot", "Quarkus", "Micronaut"}):
+        if "Java" in primary_lang or framework_set.intersection(
+            {"Spring Boot", "Quarkus", "Micronaut"}
+        ):
             return "Java Enterprise Application"
 
         # 5. Go Backend Application
@@ -280,11 +290,15 @@ class CodebaseDetector:
             return "Go Backend Application"
 
         # 6. Full-Stack Web Application
-        if framework_set.intersection({"Next.js", "Nuxt"}) or ("React" in framework_set and ("Express" in framework_set or "FastAPI" in framework_set)):
+        if framework_set.intersection({"Next.js", "Nuxt"}) or (
+            "React" in framework_set and ("Express" in framework_set or "FastAPI" in framework_set)
+        ):
             return "Full-Stack Web Application"
 
         # 7. JavaScript/TypeScript Web Application
-        if ("JavaScript" in primary_lang or "TypeScript" in primary_lang) and framework_set.intersection({"React", "Vue", "Angular", "Express"}):
+        if (
+            "JavaScript" in primary_lang or "TypeScript" in primary_lang
+        ) and framework_set.intersection({"React", "Vue", "Angular", "Express"}):
             return "JavaScript/TypeScript Web Application"
 
         if "Python" in primary_lang:
@@ -293,7 +307,9 @@ class CodebaseDetector:
         return "Generic Software Repository"
 
     @classmethod
-    def _generate_project_tree(cls, workspace_dir: Path, files: list[Path], max_entries: int = 40) -> list[str]:
+    def _generate_project_tree(
+        cls, workspace_dir: Path, files: list[Path], max_entries: int = 40
+    ) -> list[str]:
         """Generates a clean text-based repository tree for top-level modules."""
         rel_paths = sorted([str(f.relative_to(workspace_dir)) for f in files])
         tree_lines = []
@@ -316,10 +332,12 @@ class CodebaseDetector:
         return tree_lines
 
     @classmethod
-    def _detect_structural_components(cls, workspace_dir: Path, files: list[Path]) -> dict[str, list[str]]:
+    def _detect_structural_components(
+        cls, workspace_dir: Path, files: list[Path]
+    ) -> dict[str, list[str]]:
         """Identifies architectural components based on file locations and conventions."""
         rel_files = [str(f.relative_to(workspace_dir)) for f in files]
-        
+
         components = {
             "entry_points": [],
             "api_routes": [],
@@ -335,23 +353,46 @@ class CodebaseDetector:
             name = os.path.basename(lower)
 
             # Entry points
-            if name in ("main.py", "app.py", "index.ts", "index.js", "server.ts", "server.js", "main.go", "application.java", "main.rs"):
+            if name in (
+                "main.py",
+                "app.py",
+                "index.ts",
+                "index.js",
+                "server.ts",
+                "server.js",
+                "main.go",
+                "application.java",
+                "main.rs",
+            ):
                 components["entry_points"].append(path)
 
             # API routes
-            if any(k in lower for k in ("routes/", "api/", "controllers/", "endpoints/", "routers/")):
+            if any(
+                k in lower for k in ("routes/", "api/", "controllers/", "endpoints/", "routers/")
+            ):
                 components["api_routes"].append(path)
 
             # Database modules
-            if any(k in lower for k in ("models/", "schema/", "migrations/", "alembic/", "entities/", "db/")):
+            if any(
+                k in lower
+                for k in ("models/", "schema/", "migrations/", "alembic/", "entities/", "db/")
+            ):
                 components["database_modules"].append(path)
 
             # Test suites
-            if any(k in lower for k in ("test", "spec")) and any(lower.endswith(ext) for ext in (".py", ".ts", ".js", ".go", ".java", ".rs")):
+            if any(k in lower for k in ("test", "spec")) and any(
+                lower.endswith(ext) for ext in (".py", ".ts", ".js", ".go", ".java", ".rs")
+            ):
                 components["test_suites"].append(path)
 
             # Deployment manifests
-            if name in ("dockerfile", "compose.yaml", "docker-compose.yml", "docker-compose.yaml", "helmfile.yaml") or any(k in lower for k in ("k8s/", "helm/", "deploy/")):
+            if name in (
+                "dockerfile",
+                "compose.yaml",
+                "docker-compose.yml",
+                "docker-compose.yaml",
+                "helmfile.yaml",
+            ) or any(k in lower for k in ("k8s/", "helm/", "deploy/")):
                 components["deployment_manifests"].append(path)
 
             # Documentation
@@ -376,46 +417,60 @@ class CodebaseDetector:
 
         # 1. README
         if not any(f.startswith("readme") for f in file_names_lower):
-            missing.append({
-                "file": "README.md",
-                "importance": "HIGH",
-                "reason": "Missing primary project documentation explaining architecture, installation, and usage."
-            })
+            missing.append(
+                {
+                    "file": "README.md",
+                    "importance": "HIGH",
+                    "reason": "Missing primary project documentation explaining architecture, installation, and usage.",
+                }
+            )
 
         # 2. Automated Tests
         has_tests = any("test" in p or "spec" in p for p in rel_paths_lower)
         if not has_tests:
-            missing.append({
-                "file": "tests/ or *_test.*",
-                "importance": "CRITICAL",
-                "reason": "No automated unit or integration tests found in the repository."
-            })
+            missing.append(
+                {
+                    "file": "tests/ or *_test.*",
+                    "importance": "CRITICAL",
+                    "reason": "No automated unit or integration tests found in the repository.",
+                }
+            )
 
         # 3. Container / Deployment manifest
-        has_container = "dockerfile" in file_names_lower or any(f.startswith("dockerfile.") for f in file_names_lower)
+        has_container = "dockerfile" in file_names_lower or any(
+            f.startswith("dockerfile.") for f in file_names_lower
+        )
         if not has_container and profile != "Generic Software Repository":
-            missing.append({
-                "file": "Dockerfile",
-                "importance": "HIGH",
-                "reason": "No containerization manifest detected for reproducible production deployment."
-            })
+            missing.append(
+                {
+                    "file": "Dockerfile",
+                    "importance": "HIGH",
+                    "reason": "No containerization manifest detected for reproducible production deployment.",
+                }
+            )
 
         # 4. CI/CD workflow
         has_ci = any(".github/workflows" in p or ".gitlab-ci" in p for p in rel_paths_lower)
         if not has_ci:
-            missing.append({
-                "file": ".github/workflows/ci.yml",
-                "importance": "MEDIUM",
-                "reason": "No automated continuous integration pipeline configured for pull requests and builds."
-            })
+            missing.append(
+                {
+                    "file": ".github/workflows/ci.yml",
+                    "importance": "MEDIUM",
+                    "reason": "No automated continuous integration pipeline configured for pull requests and builds.",
+                }
+            )
 
         # 5. Environment configuration template
         has_env_example = ".env.example" in file_names_lower or ".env.template" in file_names_lower
-        if not has_env_example and any(f.endswith((".py", ".ts", ".js", ".go")) for f in file_names_lower):
-            missing.append({
-                "file": ".env.example",
-                "importance": "MEDIUM",
-                "reason": "No environment variable documentation template provided for runtime configurations."
-            })
+        if not has_env_example and any(
+            f.endswith((".py", ".ts", ".js", ".go")) for f in file_names_lower
+        ):
+            missing.append(
+                {
+                    "file": ".env.example",
+                    "importance": "MEDIUM",
+                    "reason": "No environment variable documentation template provided for runtime configurations.",
+                }
+            )
 
         return missing

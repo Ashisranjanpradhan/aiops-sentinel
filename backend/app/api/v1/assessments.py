@@ -1,4 +1,5 @@
 import json
+
 from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -122,7 +123,9 @@ async def export_assessment_report(
         return Response(
             content=json.dumps(exported, indent=2),
             media_type="application/sarif+json",
-            headers={"Content-Disposition": f'attachment; filename="assessment-{assessment_id[:8]}.sarif"'},
+            headers={
+                "Content-Disposition": f'attachment; filename="assessment-{assessment_id[:8]}.sarif"'
+            },
         )
     return make_response(exported)
 

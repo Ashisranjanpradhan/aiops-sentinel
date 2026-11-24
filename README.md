@@ -28,6 +28,25 @@
 - **Contact & Enquiries Management:** Production contact form (`/contact`) hardened with anti-bot honeypots, minimum typing time validation, sliding-window rate limiting, and an authenticated operator console (`/settings/enquiries`) for enquiry triage, status updates, and internal notes.
 - **Global Theme Engine:** Seamless Light, Dark, and System theme switching across public and authenticated portals, persisted via `localStorage: aiops_theme`, synced with OS color schemes, and protected by an anti-FOUC inline script.
 
+---
+
+## GitHub Pages Free Hosting Architecture & Boundaries
+
+The project's public documentation and research portal is published on **GitHub Pages**:
+🔗 **[https://ashisranjanpradhan.github.io/aiops-sentinel/](https://ashisranjanpradhan.github.io/aiops-sentinel/)**
+
+### Strict Scope & Architecture Boundaries
+
+1. **Purely Static Project Presentation:**
+   - GitHub Pages serves **only** static documentation, research methodology notes, architecture overviews, and screenshots (`gh-pages/`).
+   - Built and deployed automatically at zero operational cost using GitHub Actions (`.github/workflows/pages.yml`).
+2. **No Dynamic Backend Execution on Pages:**
+   - GitHub Pages **does not** execute the FastAPI backend, PostgreSQL database, Redis queues, Celery workers, or live OpenTelemetry collectors.
+   - It **does not** process user authentication, accept dynamic file uploads, or store assessment data.
+3. **Separate Runtime Application Deployment:**
+   - The full dynamic AIOps Sentinel platform is containerized and deployable independently via Docker Compose (`docker-compose.production.yml` and `docker-compose.staging.yml`) or cloud container orchestrators (ECS, GKE, Kubernetes).
+
+
 
 ### 3. Real ML Research & Evaluation
 - **Reproducible Benchmark Splits:** Dataset manifests and deterministic episode generators for RCAEval (RE1, RE2, RE3 failure suites) cached under `ml/data/`.

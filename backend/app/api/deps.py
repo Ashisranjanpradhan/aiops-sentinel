@@ -47,6 +47,7 @@ ROLE_HIERARCHY = {
 
 def require_roles(*allowed_roles: str):
     """Enforce server-side Role-Based Access Control (RBAC). Admin always has superuser access."""
+
     async def role_checker(current_user: User = Depends(get_current_user)) -> User:
         user_role = (current_user.role or "viewer").lower()
         if user_role not in allowed_roles and user_role != "admin":
@@ -62,4 +63,3 @@ def require_roles(*allowed_roles: str):
 get_current_admin = require_roles("admin")
 get_current_operator = require_roles("admin", "operator")
 get_current_analyst = require_roles("admin", "operator", "analyst")
-

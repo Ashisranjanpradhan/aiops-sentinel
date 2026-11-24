@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-import os
 import random
 import shutil
 import tarfile
@@ -86,7 +85,7 @@ def evaluate_model_on_benchmark(
     Separately computes anomaly detection metrics and RCA metrics.
     Returns: (combined_metrics, fitted_metadata, last_fitted_model_object)
     """
-    test_episodes, test_case_ids = _load_benchmark_data(seed)
+    test_episodes, _test_case_ids = _load_benchmark_data(seed)
     model_lower = model_name.lower()
     rng = random.Random(seed)
     start_time = time.perf_counter()
@@ -112,7 +111,6 @@ def evaluate_model_on_benchmark(
         rca_ground_truth.append(root_cause)
 
         service_scores: dict[str, float] = {}
-        all_services = list(ep["telemetry"].keys())
 
         # Baseline 1: Random Guesser
         if "random" in model_lower:
@@ -138,7 +136,6 @@ def evaluate_model_on_benchmark(
         else:
             for s_name, series in ep["telemetry"].items():
                 err_values = [p["error_rate"] for p in series]
-                cpu_values = [p["cpu_usage"] for p in series]
                 labels = [p["is_anomalous"] for p in series]
 
                 if "ewma" in model_lower:
@@ -173,7 +170,9 @@ def evaluate_model_on_benchmark(
 
                 # Factor in temporal onset lead time for root cause localization
                 # Services with earlier anomaly onset get temporal priority in ranking
-                temporal_boost = 1.0 + max(0.0, (len(series) - first_anomaly_idx) / max(1, len(series)) * 0.25)
+                temporal_boost = 1.0 + max(
+                    0.0, (len(series) - first_anomaly_idx) / max(1, len(series)) * 0.25
+                )
                 service_scores[s_name] = max_score * temporal_boost
 
         # Rank candidate services by anomalous score
@@ -202,7 +201,9 @@ def evaluate_model_on_benchmark(
         "mean_rank": rca_metrics["mean_rank"],
         # Operational runtime metrics
         "p95_inference_ms": p95_latency,
-        "peak_memory_mb": 42.5 if "zscore" in model_lower else (58.2 if "ewma" in model_lower else 118.0),
+        "peak_memory_mb": 42.5
+        if "zscore" in model_lower
+        else (58.2 if "ewma" in model_lower else 118.0),
     }
 
     fitted_params["evaluation_summary"] = {
@@ -399,7 +400,8 @@ class ExperimentService:
             model_name=data.model_name,
             model_version=data.model_version,
             dataset_id=data.dataset_id,
-            split_manifest_path=data.split_manifest_path or f"manifests/rcaeval_split_seed{data.seed or 42}.json",
+            split_manifest_path=data.split_manifest_path
+            or f"manifests/rcaeval_split_seed{data.seed or 42}.json",
             config_json=data.config_json,
             metrics_json=metrics,
             artifact_uri=artifact_uri,

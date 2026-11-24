@@ -39,4 +39,3 @@ api_router.include_router(profile.router)
 api_router.include_router(assessments.router)
 api_router.include_router(remediations.router)
 api_router.include_router(contact.router)
-

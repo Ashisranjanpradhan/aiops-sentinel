@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, ClassVar
 from uuid import uuid4
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import AppError, NotFoundError, ValidationError
+from app.core.errors import NotFoundError, ValidationError
 from app.models.entities import Incident, IncidentEvent, Service, ServiceEdge
 from app.schemas.domain import (
     RemediationExecutionRequest,
@@ -21,13 +21,18 @@ class RemediationService:
     strict action allowlisting, blast radius analysis, and audit logging.
     """
 
-    ALLOWED_RUNBOOKS: dict[str, dict[str, Any]] = {
+    ALLOWED_RUNBOOKS: ClassVar[dict[str, dict[str, Any]]] = {
         "restart_pod": {
             "name": "Graceful Pod Restart",
             "description": "Performs rolling graceful restart of application worker pods.",
             "risk_level": "moderate",
             "parameters_schema": {
-                "grace_period_seconds": {"type": "integer", "minimum": 0, "maximum": 300, "default": 30}
+                "grace_period_seconds": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 300,
+                    "default": 30,
+                }
             },
         },
         "rollback_deployment": {
@@ -51,7 +56,11 @@ class RemediationService:
             "description": "Manually triggers or resets service mesh circuit breaker to isolate failing callees.",
             "risk_level": "high",
             "parameters_schema": {
-                "state": {"type": "string", "enum": ["open", "closed", "half-open"], "required": True}
+                "state": {
+                    "type": "string",
+                    "enum": ["open", "closed", "half-open"],
+                    "required": True,
+                }
             },
         },
     }
@@ -140,14 +149,18 @@ class RemediationService:
             action_summary = f"Scaled replicas of service '{service.name}' to {replicas} instances."
         elif req.runbook_id == "restart_pod":
             grace = params.get("grace_period_seconds", 30)
-            action_summary = f"Initiated rolling pod restart for '{service.name}' with {grace}s grace period."
+            action_summary = (
+                f"Initiated rolling pod restart for '{service.name}' with {grace}s grace period."
+            )
         elif req.runbook_id == "rollback_deployment":
             rev = params.get("target_revision", "previous")
             action_summary = f"Rolled back service '{service.name}' deployment to revision {rev}."
         elif req.runbook_id == "toggle_circuit_breaker":
             cb_state = params.get("state")
             if cb_state not in ["open", "closed", "half-open"]:
-                raise ValidationError("Parameter 'state' must be one of: 'open', 'closed', 'half-open'.")
+                raise ValidationError(
+                    "Parameter 'state' must be one of: 'open', 'closed', 'half-open'."
+                )
             action_summary = f"Set circuit breaker on '{service.name}' to state '{cb_state}'."
         else:
             action_summary = f"Executed runbook '{req.runbook_id}' on service '{service.name}'."

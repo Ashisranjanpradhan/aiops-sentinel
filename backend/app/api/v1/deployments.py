@@ -58,4 +58,3 @@ async def get_deployment(
 ):
     d = await deployment_service.get_deployment(db, deployment_id)
     return make_response(d.model_dump())
-

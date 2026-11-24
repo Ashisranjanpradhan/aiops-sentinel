@@ -2,7 +2,9 @@ import numpy as np
 
 
 def compute_rca_metrics(
-    predictions: list[list[str]], ground_truth: list[str], case_ids: list[str] | None = None
+    predictions: list[list[str]],
+    ground_truth: list[str],
+    case_ids: list[str] | None = None,
 ) -> dict:
     """
     Compute standard Root Cause Analysis evaluation metrics:
@@ -33,25 +35,27 @@ def compute_rca_metrics(
     case_results = []
 
     for i, (ranked_candidates, true_cause) in enumerate(zip(predictions, ground_truth)):
-        cid = case_ids[i] if case_ids and i < len(case_ids) else f"case_{i+1:04d}"
+        cid = case_ids[i] if case_ids and i < len(case_ids) else f"case_{i + 1:04d}"
         if not ranked_candidates:
             reciprocal_ranks.append(0.0)
             ranks.append(float(len(ranked_candidates) + 1))
-            case_results.append({
-                "case_id": cid,
-                "true_cause": true_cause,
-                "predicted_top_1": None,
-                "rank": None,
-                "reciprocal_rank": 0.0,
-                "hit_1": False,
-                "hit_3": False,
-            })
+            case_results.append(
+                {
+                    "case_id": cid,
+                    "true_cause": true_cause,
+                    "predicted_top_1": None,
+                    "rank": None,
+                    "reciprocal_rank": 0.0,
+                    "hit_1": False,
+                    "hit_3": False,
+                }
+            )
             continue
 
         pred_top_1 = ranked_candidates[0]
-        is_hit_1 = (pred_top_1 == true_cause)
-        is_hit_3 = (true_cause in ranked_candidates[:3])
-        is_hit_5 = (true_cause in ranked_candidates[:5])
+        is_hit_1 = pred_top_1 == true_cause
+        is_hit_3 = true_cause in ranked_candidates[:3]
+        is_hit_5 = true_cause in ranked_candidates[:5]
 
         if is_hit_1:
             hits_at_1 += 1
@@ -71,15 +75,17 @@ def compute_rca_metrics(
             reciprocal_ranks.append(0.0)
             ranks.append(float(rank))
 
-        case_results.append({
-            "case_id": cid,
-            "true_cause": true_cause,
-            "predicted_top_1": pred_top_1,
-            "rank": rank,
-            "reciprocal_rank": round(rr, 4),
-            "hit_1": is_hit_1,
-            "hit_3": is_hit_3,
-        })
+        case_results.append(
+            {
+                "case_id": cid,
+                "true_cause": true_cause,
+                "predicted_top_1": pred_top_1,
+                "rank": rank,
+                "reciprocal_rank": round(rr, 4),
+                "hit_1": is_hit_1,
+                "hit_3": is_hit_3,
+            }
+        )
 
     return {
         "top_1_accuracy": round(hits_at_1 / total, 4),

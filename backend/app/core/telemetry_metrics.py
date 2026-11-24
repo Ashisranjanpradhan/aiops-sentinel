@@ -1,5 +1,5 @@
 import time
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from prometheus_client import (
@@ -73,7 +73,9 @@ async def prometheus_metrics_middleware(request: Request, call_next: Callable) -
         parts = path.split("/")
         normalized_parts = []
         for part in parts:
-            if len(part) >= 20 or (len(part) > 8 and any(c.isdigit() for c in part) and any(c.isalpha() for c in part)):
+            if len(part) >= 20 or (
+                len(part) > 8 and any(c.isdigit() for c in part) and any(c.isalpha() for c in part)
+            ):
                 normalized_parts.append(":id")
             else:
                 normalized_parts.append(part)

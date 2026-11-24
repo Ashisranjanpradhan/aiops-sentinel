@@ -27,6 +27,7 @@ class TaskQueue:
         if self._redis_client is None:
             try:
                 import redis.asyncio as aioredis
+
                 client = aioredis.from_url(
                     self.redis_url,
                     socket_connect_timeout=1.5,
@@ -67,7 +68,9 @@ class TaskQueue:
             try:
                 raw = json.dumps(message)
                 await redis_client.rpush("aiops:queue:default", raw)
-                await redis_client.hset(f"aiops:job:{job_id}", mapping={"status": "queued", "task": task_name})
+                await redis_client.hset(
+                    f"aiops:job:{job_id}", mapping={"status": "queued", "task": task_name}
+                )
                 return True
             except Exception as e:
                 logger.warning("Redis enqueue failed (%s); failing over to local queue", e)
@@ -100,7 +103,7 @@ class TaskQueue:
             msg = await asyncio.wait_for(self._in_memory_queue.get(), timeout=timeout_seconds)
             self._in_flight[msg["job_id"]] = msg
             return msg
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return None
 
     async def ack(self, job_id: str) -> None:
@@ -164,7 +167,9 @@ class TaskQueue:
                 try:
                     await redis_client.rpush("aiops:queue:dlq", json.dumps(msg))
                     await redis_client.srem("aiops:queue:processing", job_id)
-                    await redis_client.hset(f"aiops:job:{job_id}", mapping={"status": "failed", "error": error_message})
+                    await redis_client.hset(
+                        f"aiops:job:{job_id}", mapping={"status": "failed", "error": error_message}
+                    )
                 except Exception:
                     pass
             self._dead_letter_queue.append(msg)

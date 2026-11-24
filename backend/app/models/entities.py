@@ -365,7 +365,9 @@ class AssessmentJob(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    assessment: Mapped["CodebaseAssessment"] = relationship("CodebaseAssessment", back_populates="jobs")
+    assessment: Mapped["CodebaseAssessment"] = relationship(
+        "CodebaseAssessment", back_populates="jobs"
+    )
 
 
 class ContactEnquiry(Base):
@@ -378,12 +380,15 @@ class ContactEnquiry(Base):
     category: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     client_ip: Mapped[str] = mapped_column(String(50), default="unknown", nullable=False)
-    status: Mapped[str] = mapped_column(String(30), default="new", index=True, nullable=False)  # new, in_review, replied, archived
+    status: Mapped[str] = mapped_column(
+        String(30), default="new", index=True, nullable=False
+    )  # new, in_review, replied, archived
     internal_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     replied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    replied_by_user_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    replied_by_user_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, onupdate=utcnow
     )
-

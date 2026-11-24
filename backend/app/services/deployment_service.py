@@ -116,9 +116,7 @@ class DeploymentService:
         """Evaluates release candidate safety, identifies blast radius risk, and outputs required changes."""
         # 1. Fetch service
         srv_res = await db.execute(
-            select(Service).where(
-                or_(Service.id == req.service_id, Service.name == req.service_id)
-            )
+            select(Service).where(or_(Service.id == req.service_id, Service.name == req.service_id))
         )
         service = srv_res.scalar_one_or_none()
         if not service:
@@ -179,7 +177,11 @@ class DeploymentService:
                     status="warning",
                     duration_ms=42,
                     details=f"High connectivity node: {up_count} upstream caller(s), {dep_count} downstream callee(s). Blast radius coverage: {blast_pct}%.",
-                    metrics={"upstream_callers": up_count, "downstream_callees": dep_count, "blast_radius_pct": blast_pct},
+                    metrics={
+                        "upstream_callers": up_count,
+                        "downstream_callees": dep_count,
+                        "blast_radius_pct": blast_pct,
+                    },
                 )
             )
             risk_score += 15
@@ -191,7 +193,11 @@ class DeploymentService:
                     status="passed",
                     duration_ms=28,
                     details=f"Manageable dependency boundary: {up_count} upstream caller(s), {dep_count} downstream callee(s). Blast radius coverage: {blast_pct}%.",
-                    metrics={"upstream_callers": up_count, "downstream_callees": dep_count, "blast_radius_pct": blast_pct},
+                    metrics={
+                        "upstream_callers": up_count,
+                        "downstream_callees": dep_count,
+                        "blast_radius_pct": blast_pct,
+                    },
                 )
             )
 
@@ -262,7 +268,11 @@ class DeploymentService:
                     status="failed",
                     duration_ms=184,
                     details="Canary evaluation error rate at 2.45% (Policy gate requires < 0.50%). Elevated HTTP 500/503 response rates observed.",
-                    metrics={"canary_error_rate": 0.0245, "threshold": 0.0050, "sample_requests": 2400},
+                    metrics={
+                        "canary_error_rate": 0.0245,
+                        "threshold": 0.0050,
+                        "sample_requests": 2400,
+                    },
                 )
             )
             what_needs_to_be_changed.append(
@@ -284,7 +294,11 @@ class DeploymentService:
                     status="warning",
                     duration_ms=162,
                     details="Canary error rate at 0.58% slightly exceeds normal baseline (Policy threshold 0.50%).",
-                    metrics={"canary_error_rate": 0.0058, "threshold": 0.0050, "sample_requests": 1800},
+                    metrics={
+                        "canary_error_rate": 0.0058,
+                        "threshold": 0.0050,
+                        "sample_requests": 1800,
+                    },
                 )
             )
         else:
@@ -295,7 +309,11 @@ class DeploymentService:
                     status="passed",
                     duration_ms=145,
                     details="Canary traffic error rate is 0.04% across 4,500 synthetic verification requests (Well within 0.50% threshold).",
-                    metrics={"canary_error_rate": 0.0004, "threshold": 0.0050, "sample_requests": 4500},
+                    metrics={
+                        "canary_error_rate": 0.0004,
+                        "threshold": 0.0050,
+                        "sample_requests": 4500,
+                    },
                 )
             )
 
@@ -413,7 +431,9 @@ class DeploymentService:
                 RiskItem(
                     category="Downstream Blast Radius",
                     target=", ".join(downstream_names),
-                    severity="critical" if decision == "BLOCKED" else ("high" if decision == "CHANGES_REQUIRED" else "moderate"),
+                    severity="critical"
+                    if decision == "BLOCKED"
+                    else ("high" if decision == "CHANGES_REQUIRED" else "moderate"),
                     description=(
                         f"Direct microservice dependencies ({', '.join(downstream_names)}) depend on {service.name}. "
                         "A failure in candidate deployment will propagate downstream failures and client timeouts."
@@ -440,7 +460,9 @@ class DeploymentService:
             RiskItem(
                 category="SLO Error Budget",
                 target=f"{service.name} 99.9% Availability Target",
-                severity="critical" if decision == "BLOCKED" else ("moderate" if decision == "CHANGES_REQUIRED" else "low"),
+                severity="critical"
+                if decision == "BLOCKED"
+                else ("moderate" if decision == "CHANGES_REQUIRED" else "low"),
                 description=(
                     f"Current risk profile projects a {risk_score}% probability of consuming more than 15% of monthly error budget "
                     "during the standard 60-minute canary promotion window."
@@ -497,9 +519,7 @@ class DeploymentService:
     ) -> DeploymentResponse:
         """Executes software delivery and records deployment into the audit ledger."""
         srv_res = await db.execute(
-            select(Service).where(
-                or_(Service.id == req.service_id, Service.name == req.service_id)
-            )
+            select(Service).where(or_(Service.id == req.service_id, Service.name == req.service_id))
         )
         service = srv_res.scalar_one_or_none()
         if not service:

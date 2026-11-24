@@ -152,7 +152,7 @@ class DimensionEvaluator:
             # Count checks
             defined_checks = STANDARD_CHECKS_PER_DIMENSION.get(dim_name, [])
             failed_count = len({f["rule_id"] for f in dim_findings})
-            
+
             # If partial upload, some checks are unverified
             if is_partial_upload or len(files) < 3:
                 unverified_count = max(1, len(defined_checks) - failed_count - 1)
@@ -224,7 +224,9 @@ class DimensionEvaluator:
 
     @classmethod
     def _check_architecture(cls, rel_files: list[str], findings: list[dict[str, Any]]) -> None:
-        has_src = any(f.startswith(("src/", "app/", "backend/", "pkg/", "internal/")) for f in rel_files)
+        has_src = any(
+            f.startswith(("src/", "app/", "backend/", "pkg/", "internal/")) for f in rel_files
+        )
         if not has_src and len(rel_files) > 15:
             findings.append(
                 {
@@ -308,22 +310,23 @@ class DimensionEvaluator:
                 continue
             try:
                 content = f.read_text(encoding="utf-8", errors="ignore")
-                if "requests.get(" in content or "requests.post(" in content:
-                    if "timeout=" not in content:
-                        findings.append(
-                            {
-                                "dimension": "Reliability & Fault Tolerance",
-                                "rule_id": "REL_UNBOUNDED_HTTP_TIMEOUT",
-                                "title": "Unbounded HTTP Request Timeout",
-                                "description": f"File `{f.name}` invokes `requests` without an explicit `timeout` parameter.",
-                                "severity": "medium",
-                                "file_path": str(f.name),
-                                "line_number": None,
-                                "evidence_snippet": "requests.get(...) without timeout",
-                                "remediation_advice": "Always supply an explicit timeout (e.g., `timeout=10.0`) to avoid thread exhaustion.",
-                            }
-                        )
-                        break
+                if (
+                    "requests.get(" in content or "requests.post(" in content
+                ) and "timeout=" not in content:
+                    findings.append(
+                        {
+                            "dimension": "Reliability & Fault Tolerance",
+                            "rule_id": "REL_UNBOUNDED_HTTP_TIMEOUT",
+                            "title": "Unbounded HTTP Request Timeout",
+                            "description": f"File `{f.name}` invokes `requests` without an explicit `timeout` parameter.",
+                            "severity": "medium",
+                            "file_path": str(f.name),
+                            "line_number": None,
+                            "evidence_snippet": "requests.get(...) without timeout",
+                            "remediation_advice": "Always supply an explicit timeout (e.g., `timeout=10.0`) to avoid thread exhaustion.",
+                        }
+                    )
+                    break
             except Exception:
                 pass
 
@@ -341,7 +344,10 @@ class DimensionEvaluator:
                     content = f.read_text(encoding="utf-8", errors="ignore")
                     if "/health" in content or "healthz" in content or "status" in content:
                         has_health = True
-                    if any(k in content for k in ("logging.getLogger", "winston", "zap.New", "slf4j", "pino")):
+                    if any(
+                        k in content
+                        for k in ("logging.getLogger", "winston", "zap.New", "slf4j", "pino")
+                    ):
                         has_logging = True
                 except Exception:
                     pass
@@ -542,19 +548,21 @@ class DimensionEvaluator:
             file_path = f.get("file_path") or "repository"
             line_no = f.get("line_number") or 1
 
-            sarif_results.append({
-                "ruleId": rule_id,
-                "level": level_map.get(f.get("severity", "medium"), "warning"),
-                "message": {"text": f.get("description", f.get("title", ""))},
-                "locations": [
-                    {
-                        "physicalLocation": {
-                            "artifactLocation": {"uri": file_path},
-                            "region": {"startLine": max(1, line_no)},
+            sarif_results.append(
+                {
+                    "ruleId": rule_id,
+                    "level": level_map.get(f.get("severity", "medium"), "warning"),
+                    "message": {"text": f.get("description", f.get("title", ""))},
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {"uri": file_path},
+                                "region": {"startLine": max(1, line_no)},
+                            }
                         }
-                    }
-                ],
-            })
+                    ],
+                }
+            )
 
         return {
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
@@ -575,7 +583,9 @@ class DimensionEvaluator:
         }
 
     @classmethod
-    def generate_html_report(cls, assessment_dict: dict[str, Any], findings: list[dict[str, Any]]) -> str:
+    def generate_html_report(
+        cls, assessment_dict: dict[str, Any], findings: list[dict[str, Any]]
+    ) -> str:
         """Generates a secure standalone, CSS-styled HTML report with strict HTML escaping and CSP."""
         proj = html.escape(str(assessment_dict.get("project_name", "Codebase Assessment")))
         score = html.escape(str(assessment_dict.get("overall_score", 0.0)))

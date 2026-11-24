@@ -1,7 +1,6 @@
 import abc
 import os
 from pathlib import Path
-from typing import Any
 
 from app.core.config import settings
 from app.core.errors import NotFoundError, ValidationError
@@ -11,22 +10,18 @@ class StorageBackend(abc.ABC):
     @abc.abstractmethod
     async def save_artifact(self, relative_path: str, data: bytes | str) -> str:
         """Save raw bytes or string content and return storage URI."""
-        pass
 
     @abc.abstractmethod
     async def get_artifact(self, relative_path: str) -> bytes:
         """Read artifact data as raw bytes."""
-        pass
 
     @abc.abstractmethod
     async def delete_artifact(self, relative_path: str) -> bool:
         """Delete an artifact if it exists."""
-        pass
 
     @abc.abstractmethod
     async def exists(self, relative_path: str) -> bool:
         """Check if an artifact exists."""
-        pass
 
 
 class LocalStorageBackend(StorageBackend):
@@ -118,12 +113,16 @@ class StorageService:
         self, assessment_id: str, content: str, export_format: str
     ) -> str:
         """Persist generated assessment HTML or SARIF report."""
-        ext = "html" if export_format == "html" else ("sarif" if export_format == "sarif" else "json")
+        ext = (
+            "html" if export_format == "html" else ("sarif" if export_format == "sarif" else "json")
+        )
         rel_path = f"assessments/{assessment_id}/report.{ext}"
         return await self.backend.save_artifact(rel_path, content)
 
     async def get_assessment_report(self, assessment_id: str, export_format: str) -> str:
-        ext = "html" if export_format == "html" else ("sarif" if export_format == "sarif" else "json")
+        ext = (
+            "html" if export_format == "html" else ("sarif" if export_format == "sarif" else "json")
+        )
         rel_path = f"assessments/{assessment_id}/report.{ext}"
         data = await self.backend.get_artifact(rel_path)
         return data.decode("utf-8")

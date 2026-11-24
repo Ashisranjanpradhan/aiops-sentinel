@@ -70,7 +70,7 @@ class DistributedAdvisoryLock:
             try:
                 import fcntl
 
-                self._file_fp = open(self.lock_path, "w")
+                self._file_fp = open(self.lock_path, "w")  # noqa: ASYNC230, SIM115
                 fcntl.flock(self._file_fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 self._file_fp.write(f"{os.getpid()}\n")
                 self._file_fp.flush()
@@ -106,7 +106,9 @@ class AlertEvaluatorWorker:
     def __init__(self, cooldown_seconds: int = 180) -> None:
         self._running = False
         self._task: asyncio.Task[None] | None = None
-        self._firing_incidents: dict[tuple[str, str], str] = {}  # (rule_id, service_id) -> incident_id
+        self._firing_incidents: dict[
+            tuple[str, str], str
+        ] = {}  # (rule_id, service_id) -> incident_id
         self._cooldown_tracker: dict[tuple[str, str], datetime] = {}
         self.cooldown_seconds = cooldown_seconds
 

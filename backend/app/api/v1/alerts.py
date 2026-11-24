@@ -57,7 +57,9 @@ async def update_alert_rule(
 
 @router.delete("/{rule_id}")
 async def delete_alert_rule(
-    rule_id: str, current_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)
+    rule_id: str,
+    current_user: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
 ):
     await alert_service.delete_rule(db, rule_id)
     return make_response({"message": f"Alert rule '{rule_id}' deleted successfully"})
