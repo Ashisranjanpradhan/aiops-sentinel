@@ -26,7 +26,10 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="#console-login" class="btn-secondary app-signin-btn">Sign In</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
       </div>
     </div>
   </header>
@@ -51,8 +54,8 @@
       <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">Core Engineering Pillars</h2>
       <div class="grid-3">
         <div class="card">
-          <h3>Empirical Rigor</h3>
-          <p>We do not train on toy synthetic distributions. Our models are evaluated against standardized microservice failure benchmarks from peer-reviewed literature (RCAEval, 60 curated episodes).</p>
+          <h3>Empirical Benchmark Evaluation</h3>
+          <p>Root-cause algorithms are evaluated against an internally generated synthetic cascading-failure benchmark (60 multi-service failure episodes simulating upstream propagation across call graphs). Validation against external authentic datasets (such as official RCAEval) is on the platform research roadmap.</p>
         </div>
         <div class="card">
           <h3>Deterministic Code Assessment</h3>

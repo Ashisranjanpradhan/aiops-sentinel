@@ -26,7 +26,10 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="#console-login" class="btn-secondary app-signin-btn">Sign In</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
       </div>
     </div>
   </header>
@@ -36,7 +39,7 @@
       <span class="badge-success">Scientific Rigor</span>
       <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Research Foundations & Empirical Benchmarks</h1>
       <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
-        Mathematical formulations, non-parametric statistical models, and reproducible evaluations against the RCAEval benchmark.
+        Mathematical formulations, non-parametric statistical models, and reproducible evaluations on our internal synthetic cascading-failure benchmark.
       </p>
     </div>
 
@@ -74,60 +77,74 @@ c(n) = 2 * (ln(n - 1) + 0.5772156649) - (2 * (n - 1) / n)</pre>
         </div>
 
         <div class="card">
-          <h3>Random Walk with Restart (RWR) RCA</h3>
-          <p>Pinpoints the root cause service by propagating probabilities backwards across the microservice dependency topology:</p>
+          <h3>Topology-Aware Root Cause Ranking (Heuristic)</h3>
+          <p>Ranks candidate root causes by traversing the microservice dependency topology backwards from observed symptom anomalies:</p>
           <pre>r^(k+1) = (1 - c) * P * r^(k) + c * e
 Transition Probability P_ij = Corr(S_i, S_j) / Σ_k Corr(S_i, S_k)</pre>
           <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
-            Where c is the restart probability (0.15) and e is the seed vector of observed symptom anomalies.
+            Where c is the restart probability (0.15) and e is the seed vector of symptom anomalies. This structural ranking heuristic provides topology-aware prioritization, distinct from formal causal DAG discovery.
           </p>
         </div>
       </div>
     </section>
 
     <section style="margin-top: 4rem;">
-      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">2. Empirical Evaluation on RCAEval Benchmark</h2>
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 0.5rem;">2. Empirical Evaluation on Internal Synthetic Cascading-Failure Benchmark</h2>
       <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-        Evaluated across 60 authentic microservice failure episodes curated from the official peer-reviewed RCAEval dataset (TrainTicket, Shopper, SocialNetwork):
+        Evaluated on an internal synthetic cascading-failure benchmark consisting of 60 multi-service failure episodes (18 test episodes, seed=42) simulating realistic latency, error, and resource saturation cascades across a 7-service topology:
       </p>
 
       <div class="table-container">
         <table>
           <thead>
             <tr>
-              <th>Evaluation Metric</th>
-              <th>AIOps Sentinel</th>
-              <th>Statistical Baseline</th>
-              <th>Evaluation Significance</th>
+              <th>Evaluated Model / Approach</th>
+              <th>Anomaly F1</th>
+              <th>Top-1 Accuracy</th>
+              <th>Top-3 Accuracy</th>
+              <th>MRR</th>
+              <th>Methodological Characterization</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>Mean Reciprocal Rank (MRR)</strong></td>
-              <td><strong>0.784</strong></td>
-              <td>0.612</td>
-              <td>Higher reciprocal ranking indicates root cause appears near top of list.</td>
+              <td><strong>Random Baseline</strong></td>
+              <td>11.1%</td>
+              <td>33.3%</td>
+              <td>44.4%</td>
+              <td>0.495</td>
+              <td>Uniform random baseline establishing lower bound performance.</td>
             </tr>
             <tr>
-              <td><strong>Top-1 Accuracy (A@1)</strong></td>
-              <td><strong>68.3%</strong></td>
-              <td>49.2%</td>
-              <td>Identified true ground-truth root-cause service on first recommendation.</td>
+              <td><strong>Isolation Forest (Unsupervised ML)</strong></td>
+              <td>53.2%</td>
+              <td>11.1%</td>
+              <td>55.6%</td>
+              <td>0.405</td>
+              <td>Multi-variate tree isolation identifies anomalies but lacks topology graph context.</td>
             </tr>
             <tr>
-              <td><strong>Top-3 Accuracy (A@3)</strong></td>
-              <td><strong>86.7%</strong></td>
-              <td>71.5%</td>
-              <td>Root cause located within top 3 ranked nodes of dependency graph.</td>
+              <td><strong>Max-Metric Heuristic</strong></td>
+              <td>55.9%</td>
+              <td>100.0%</td>
+              <td>100.0%</td>
+              <td>1.000</td>
+              <td>High precision on dominant errors; low recall (38.8%) during gradual metric drift.</td>
             </tr>
             <tr>
-              <td><strong>Top-5 Accuracy (A@5)</strong></td>
-              <td><strong>93.3%</strong></td>
-              <td>82.1%</td>
-              <td>Root cause captured within top 5 candidates across multi-tier topologies.</td>
+              <td><strong>Online EWMA Drift + Topology Ranking</strong></td>
+              <td><strong>88.5%</strong></td>
+              <td><strong>100.0%</strong></td>
+              <td><strong>100.0%</strong></td>
+              <td><strong>1.000</strong></td>
+              <td>Non-parametric statistical drift detection (98.2% recall) combined with topology ranking.</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding: 1rem; border-radius: 8px; background-color: var(--surface-raised); border: 1px solid var(--border); font-size: 0.85rem; color: var(--text-secondary);">
+        <strong>Benchmark Provenance & Future Evaluation:</strong> The above results reflect reproducible execution on the platform's internal cascading-failure dataset (generated via <code>scripts/download-benchmarks.py</code>). Formal evaluation against external published datasets, including the official RCAEval benchmark, represents an active engineering roadmap objective.
       </div>
     </section>
   </main>

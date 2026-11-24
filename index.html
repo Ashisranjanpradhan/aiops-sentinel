@@ -27,7 +27,10 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="#console-login" class="btn-secondary app-signin-btn">Sign In</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
       </div>
     </div>
   </header>
@@ -43,7 +46,8 @@
         with real-time distributed telemetry, non-parametric anomaly detection, and topological root cause analysis.
       </p>
       <div class="hero-actions">
-        <a href="docs.html" class="btn-primary">Get Started in 5 Minutes</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
+        <a href="docs.html" class="btn-secondary">Get Started in 5 Minutes</a>
         <a href="research.html" class="btn-secondary">Empirical Benchmark Data</a>
       </div>
     </section>
@@ -83,9 +87,10 @@
               using non-parametric Median Absolute Deviation (MAD), online EWMA drift tracking, and multi-variate Isolation Forests.
             </p>
             <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
-              <li>Topological Random Walk with Restart (RWR) RCA</li>
-              <li>Validated against the official RCAEval benchmark</li>
-              <li>Automated incident remediation with advisory locking</li>
+              <li>Topological Random Walk with Restart (RWR) Root Cause Ranking</li>
+              <li>Evaluated on internal 60-episode synthetic cascading-failure benchmark</li>
+              <li>Official external benchmark validation (RCAEval) on research roadmap</li>
+              <li>Automated incident remediation with PostgreSQL advisory locking</li>
             </ul>
           </div>
         </div>

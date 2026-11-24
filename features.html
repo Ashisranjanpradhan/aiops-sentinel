@@ -26,7 +26,10 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="#console-login" class="btn-secondary app-signin-btn">Sign In</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
       </div>
     </div>
   </header>
@@ -67,6 +70,9 @@
 
     <section style="margin-top: 3.5rem;">
       <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">2. Runtime Reliability & RCA</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+        Integrations verified in live operation: Prometheus scraping, OpenTelemetry OTLP ingestion, and Tempo trace propagation. A standalone synthetic simulation mode is also provided for offline local testing.
+      </p>
       <div class="grid-3">
         <div class="card">
           <h3>Non-Parametric Anomaly Detection</h3>
@@ -77,8 +83,8 @@
           <p>Continuously tracks metric drift and dynamic control limits in streaming telemetry without maintaining unbounded historical memory buffers.</p>
         </div>
         <div class="card">
-          <h3>Topological Causal RCA</h3>
-          <p>Random Walk with Restart (RWR) traverses the microservice dependency graph backwards from symptom anomalies to identify probable root causes.</p>
+          <h3>Topology-Aware Root Cause Ranking</h3>
+          <p>Random Walk with Restart (RWR) traverses the microservice dependency topology backwards from symptom anomalies to rank probable root causes via structural graph heuristics.</p>
         </div>
       </div>
     </section>

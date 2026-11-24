@@ -26,7 +26,10 @@
       </nav>
       <div class="header-actions">
         <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+        <a href="https://github.com/Ashisranjanpradhan/aiops-sentinel" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="#console-login" class="btn-secondary app-signin-btn">Sign In</a>
+        <a href="#console-launch" class="btn-primary app-launch-btn">Launch Console</a>
       </div>
     </div>
   </header>
@@ -46,7 +49,7 @@
         Clone the repository and spin up the complete local observability stack using Docker Compose:
       </p>
       <pre># 1. Clone repository
-git clone https://github.com/organization/aiops-sentinel.git
+git clone https://github.com/Ashisranjanpradhan/aiops-sentinel.git
 cd aiops-sentinel
 
 # 2. Configure environment template
@@ -58,7 +61,7 @@ docker compose -f docker-compose.staging.yml up -d
 # 4. Open Gateway
 open http://localhost:8088</pre>
       <p style="font-size: 0.85rem; color: var(--text-muted);">
-        Default admin seed account: <code>admin@aiops.sentinel</code> / <code>sentinel-admin-1234</code>
+        Configure your first administrator account in <code>.env</code> using <code>INITIAL_ADMIN_EMAIL</code> and a strong <code>INITIAL_ADMIN_PASSWORD</code>. Hardcoded or default credentials are prohibited in staging and production.
       </p>
     </section>
 
@@ -102,8 +105,8 @@ jobs:
       - name: Run AIOps Sentinel Assessment
         run: |
           docker run --rm -v ${{ github.workspace }}:/code \
-            ghcr.io/organization/aiops-sentinel-cli:latest \
-            assess --path /code --min-score 80 --sarif results.sarif
+            ghcr.io/ashisranjanpradhan/aiops-sentinel-backend:latest \
+            python -m app.cli.assess --path /code --min-score 80 --sarif results.sarif
       - name: Upload SARIF to GitHub Security Tab
         uses: github/codeql-action/upload-sarif@v3
         with:
