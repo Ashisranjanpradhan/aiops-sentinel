@@ -62,6 +62,11 @@ jobs:
           . .venv/bin/activate
           bandit -r backend/app -ll -x "backend/tests"
 
+      - name: Prepare Evaluation Benchmark Datasets
+        run: |
+          . .venv/bin/activate
+          python scripts/download-benchmarks.py
+
       - name: Run Backend Pytest Suite with Coverage
         run: |
           . .venv/bin/activate
