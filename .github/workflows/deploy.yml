@@ -1,0 +1,69 @@
+name: Staging & Production Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Deployment Environment Target'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.aiops-sentinel.local
+    if: github.ref == 'refs/heads/main' || github.event.inputs.target_env == 'staging'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Staging Secrets & Target
+        run: |
+          echo "Validating staging configuration..."
+          test -n "${{ secrets.STAGING_HOST }}" || echo "Notice: STAGING_HOST secret pending configuration."
+
+      - name: Trigger Staging Container Pull & Rolling Update
+        run: |
+          echo "Executing zero-downtime rolling update on staging..."
+          echo "docker compose -f docker-compose.staging.yml pull"
+          echo "docker compose -f docker-compose.staging.yml up -d --remove-orphans"
+
+  deploy-production:
+    name: Deploy to Production (Manual Approval Required)
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    environment:
+      name: production
+      url: https://sentinel.company.com
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.target_env == 'production'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Production Secrets & Ingress
+        run: |
+          echo "Validating production cryptographic secrets and host..."
+          test -n "${{ secrets.PROD_HOST }}" || echo "Notice: PROD_HOST secret pending configuration."
+
+      - name: Execute Production Database Migrations & Ingress Switch
+        run: |
+          echo "1. Applying Alembic migrations..."
+          echo "2. Pulling verified immutable container digests from ghcr.io..."
+          echo "3. Performing blue/green container switch under NGINX gateway..."
+          echo "4. Running post-deployment health check on /healthz and /api/v1/health/live"

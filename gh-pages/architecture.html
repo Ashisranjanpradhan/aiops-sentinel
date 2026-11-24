@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture | AIOps Sentinel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge-success">System Topology</span>
+      <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Distributed System Architecture</h1>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
+        End-to-end component interaction, data flow pipelines, security boundaries, and telemetry ingestion topology.
+      </p>
+    </div>
+
+    <section style="margin-top: 2rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">System Component Overview</h2>
+      <pre>
+                                  [ Public Internet / Clients ]
+                                                │
+                                    (HTTPS:443 / HTTP:80)
+                                                ▼
+                                   ┌─────────────────────────┐
+                                   │   NGINX Reverse Proxy   │
+                                   │   (Rate Limit & TLS)    │
+                                   └────────────┬────────────┘
+                                                │
+                       ┌────────────────────────┴────────────────────────┐
+                       │ (/api/*)                                        │ (/*)
+                       ▼                                                 ▼
+        ┌─────────────────────────────┐                   ┌─────────────────────────────┐
+        │    FastAPI Backend API      │                   │     Next.js 14 Web UI       │
+        │   (Python 3.11 Async)       │                   │     (React 18 / Standalone) │
+        └──────────────┬──────────────┘                   └─────────────────────────────┘
+                       │
+       ┌───────────────┼──────────────────────────────┐
+       │               │                              │
+       ▼               ▼                              ▼
+┌──────────────┐ ┌──────────────┐              ┌──────────────┐
+│  PostgreSQL  │ │   Redis 7    │              │  Background  │
+│  Version 16  │ │ Queue/Cache  │              │ Worker/Alert │
+└──────────────┘ └──────────────┘              └──────┬───────┘
+                                                      │
+                       ┌──────────────────────────────┘
+                       │
+                       ▼
+       ┌──────────────────────────────┐
+       │   OpenTelemetry Collector    │
+       │   (OTLP Traces & Metrics)    │
+       └───────────────┬──────────────┘
+                       │
+       ┌───────────────┼──────────────────────────────┐
+       │               │                              │
+       ▼               ▼                              ▼
+┌──────────────┐ ┌──────────────┐              ┌──────────────┐
+│  Prometheus  │ │  Grafana     │              │   Grafana    │
+│  TSDB (9090) │ │  Loki Logs   │              │  Tempo Trace │
+└──────────────┘ └──────────────┘              └──────────────┘
+      </pre>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">Architectural Boundary & Isolation Model</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Network Segregation</h3>
+          <p>Only the NGINX Reverse Proxy exposes ports to the public network. PostgreSQL, Redis, Prometheus, Loki, and Tempo remain strictly internal on dedicated Docker bridge networks.</p>
+        </div>
+        <div class="card">
+          <h3>Transactional Concurrency</h3>
+          <p>Database mutations and automated remediations use PostgreSQL Advisory Locks (<code>pg_try_advisory_xact_lock</code>) to eliminate race conditions between concurrent SRE actions.</p>
+        </div>
+        <div class="card">
+          <h3>Telemetry Buffering</h3>
+          <p>The OpenTelemetry Collector decouples high-volume microservice metric streams from persistent storage, buffering events during network latency spikes.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

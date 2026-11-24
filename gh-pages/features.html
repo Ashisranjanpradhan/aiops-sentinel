@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Features | AIOps Sentinel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge-success">Platform Capabilities</span>
+      <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Platform Feature Specification</h1>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
+        Comprehensive capabilities spanning pre-deployment static analysis and live cluster telemetry intelligence.
+      </p>
+    </div>
+
+    <div class="screenshot-preview">
+      <img src="assets/screenshots/codebase-assessments-desktop-1440-dark.png" alt="AIOps Sentinel Codebase Assessment in Dark Theme">
+      <div class="screenshot-caption">
+        <strong>Figure 3:</strong> Codebase Production-Readiness Assessment Dashboard — 10-dimension score breakdown, SARIF export, and risk gate results.
+      </div>
+    </div>
+
+    <section style="margin-top: 3rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">1. Pre-Deployment Codebase Readiness</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>10-Dimension Static Analysis</h3>
+          <p>Evaluates architecture structure, error handling, telemetry instrumentation, security credentials, dependency posture, test coverage, and configuration discipline.</p>
+        </div>
+        <div class="card">
+          <h3>SARIF & HTML Export</h3>
+          <p>Export standard SARIF 2.1.0 reports natively ingested by GitHub Code Scanning, SonarQube, and CI/CD security dashboards.</p>
+        </div>
+        <div class="card">
+          <h3>Safe Static Sandboxing</h3>
+          <p>Zero arbitrary code execution. Source code is parsed strictly into Python ASTs and inspected via static regular expressions and heuristics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">2. Runtime Reliability & RCA</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Non-Parametric Anomaly Detection</h3>
+          <p>Robust to heavy-tailed cloud latency distributions using Median Absolute Deviation (MAD) and modified Z-scores without Gaussian assumptions.</p>
+        </div>
+        <div class="card">
+          <h3>Online EWMA Drift Detection</h3>
+          <p>Continuously tracks metric drift and dynamic control limits in streaming telemetry without maintaining unbounded historical memory buffers.</p>
+        </div>
+        <div class="card">
+          <h3>Topological Causal RCA</h3>
+          <p>Random Walk with Restart (RWR) traverses the microservice dependency graph backwards from symptom anomalies to identify probable root causes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top: 3.5rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">3. Enterprise Governance & Security</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>PostgreSQL Advisory Locking</h3>
+          <p>Guarantees that concurrent operators or automated background workers cannot execute conflicting remediation actions simultaneously on the same incident.</p>
+        </div>
+        <div class="card">
+          <h3>Role-Based Access Control (RBAC)</h3>
+          <p>JWT-authenticated sessions with granular role permissions: Admin, SRE, and Analyst tiers with secure password hashing via bcrypt.</p>
+        </div>
+        <div class="card">
+          <h3>Audit Logging & Ingestion Security</h3>
+          <p>All remediation attempts, policy approvals, and user actions are logged with immutable audit records and IP attribution.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

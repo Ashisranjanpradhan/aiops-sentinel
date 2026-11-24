@@ -83,15 +83,15 @@ export default function IncidentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Active & Resolved Incidents</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Active & Resolved Incidents</h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
             Automated anomaly detection alerts and RCA investigations across system services.
           </p>
         </div>
         <div className="flex items-center space-x-3">
           {refreshToast && (
-            <span className="inline-flex items-center text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md shadow-xs">
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+            <span className="inline-flex items-center text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-md shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600 dark:text-emerald-400" />
               Refreshed
             </span>
           )}
@@ -100,10 +100,10 @@ export default function IncidentsPage() {
             type="button"
             onClick={() => fetchIncidents(true)}
             disabled={refreshing || loading}
-            className="inline-flex items-center px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-xs font-medium hover:bg-slate-50 shadow-sm disabled:opacity-60 cursor-pointer active:scale-95 transition-all"
+            className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-md text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm disabled:opacity-60 cursor-pointer active:scale-95 transition-all"
             aria-label="Refresh incidents list"
           >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-500"}`} />
+            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"}`} />
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
         </div>
@@ -111,51 +111,51 @@ export default function IncidentsPage() {
 
       {/* KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-center text-slate-500 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex justify-between items-center text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Total Incidents</span>
-            <AlertTriangle className="w-4 h-4 text-indigo-600" />
+            <AlertTriangle className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{total || incidents.length}</div>
-          <div className="text-xs text-slate-500 mt-1">Recorded anomaly detections</div>
+          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{total || incidents.length}</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">Recorded anomaly detections</div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-center text-slate-500 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex justify-between items-center text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Active & In-Flight</span>
-            <Activity className="w-4 h-4 text-amber-600" />
+            <Activity className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
-          <div className="text-2xl font-bold text-amber-700">
+          <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">
             {incidents.filter((i) => i.status !== "resolved" && i.status !== "closed").length}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Open, Acknowledged or Investigating</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">Open, Acknowledged or Investigating</div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-center text-slate-500 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex justify-between items-center text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Critical Impact</span>
-            <ShieldAlert className="w-4 h-4 text-rose-600" />
+            <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
           </div>
-          <div className="text-2xl font-bold text-rose-700">
+          <div className="text-2xl font-bold text-rose-700 dark:text-rose-400">
             {incidents.filter((i) => i.severity === "critical").length}
           </div>
-          <div className="text-xs text-slate-500 mt-1">High-priority service anomalies</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">High-priority service anomalies</div>
         </div>
 
-        <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-center text-slate-500 mb-2">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="flex justify-between items-center text-slate-600 dark:text-slate-400 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">Resolved / Mitigated</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="text-2xl font-bold text-emerald-700">
+          <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
             {incidents.filter((i) => i.status === "resolved" || i.status === "closed").length}
           </div>
-          <div className="text-xs text-slate-500 mt-1">SLA restoration verified</div>
+          <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">SLA restoration verified</div>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-72">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
@@ -164,7 +164,7 @@ export default function IncidentsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search incident ID, title, or service..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
           </form>
 
@@ -174,7 +174,7 @@ export default function IncidentsPage() {
               setSeverity(e.target.value);
               setPage(1);
             }}
-            className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-md bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="px-2.5 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">All Severities</option>
             <option value="critical">Critical</option>
@@ -189,7 +189,7 @@ export default function IncidentsPage() {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="px-2.5 py-1.5 text-xs border border-slate-300 rounded-md bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="px-2.5 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
             <option value="">All Statuses</option>
             <option value="open">Open</option>
@@ -202,7 +202,7 @@ export default function IncidentsPage() {
           {(search || severity || statusFilter) && (
             <button
               onClick={handleClearFilters}
-              className="text-xs text-slate-500 hover:text-slate-800 flex items-center space-x-1"
+              className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center space-x-1"
             >
               <XCircle className="w-3.5 h-3.5" />
               <span>Clear</span>
@@ -210,8 +210,8 @@ export default function IncidentsPage() {
           )}
         </div>
 
-        <div className="text-xs text-slate-500">
-          Showing <span className="font-semibold text-slate-900">{incidents.length}</span> of {total} incidents
+        <div className="text-xs text-slate-600 dark:text-slate-400">
+          Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{incidents.length}</span> of {total} incidents
         </div>
       </div>
 
@@ -228,10 +228,10 @@ export default function IncidentsPage() {
           onAction={handleClearFilters}
         />
       ) : (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 font-medium">
+            <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-left text-xs">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 font-medium">
                 <tr>
                   <th className="px-5 py-3">Severity</th>
                   <th className="px-5 py-3">Incident Summary</th>
@@ -242,31 +242,31 @@ export default function IncidentsPage() {
                   <th className="px-5 py-3">Assignee</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                 {incidents.map((inc) => (
-                  <tr key={inc.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={inc.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="px-5 py-3">
                       <SeverityBadge severity={inc.severity} />
                     </td>
-                    <td className="px-5 py-3 font-medium text-slate-900 max-w-sm">
-                      <Link href={`/incidents/${inc.id}`} className="text-indigo-600 hover:underline">
+                    <td className="px-5 py-3 font-medium text-slate-900 dark:text-slate-100 max-w-sm">
+                      <Link href={`/incidents/${inc.id}`} className="text-indigo-600 dark:text-indigo-400 hover:underline">
                         {inc.title}
                       </Link>
                     </td>
-                    <td className="px-5 py-3 font-mono font-medium text-slate-800">
+                    <td className="px-5 py-3 font-mono font-medium text-slate-800 dark:text-slate-200">
                       {inc.primary_service_name || "N/A"}
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge status={inc.status} />
                     </td>
-                    <td className="px-5 py-3 text-slate-500 whitespace-nowrap">
+                    <td className="px-5 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {new Date(inc.detected_at).toLocaleString()}
                     </td>
-                    <td className="px-5 py-3 text-slate-600">
+                    <td className="px-5 py-3 text-slate-600 dark:text-slate-400">
                       <code>{inc.detector_name}</code>
                     </td>
-                    <td className="px-5 py-3 text-slate-600">
-                      {inc.assigned_user_name || <span className="text-slate-400">Unassigned</span>}
+                    <td className="px-5 py-3 text-slate-600 dark:text-slate-400">
+                      {inc.assigned_user_name || <span className="text-slate-400 dark:text-slate-500">Unassigned</span>}
                     </td>
                   </tr>
                 ))}
@@ -275,7 +275,7 @@ export default function IncidentsPage() {
           </div>
 
           {/* Pagination */}
-          <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
             <div>
               Showing {incidents.length} of {total} incidents
             </div>
@@ -283,7 +283,7 @@ export default function IncidentsPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-200 disabled:opacity-40"
               >
                 Previous
               </button>
@@ -293,7 +293,7 @@ export default function IncidentsPage() {
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-2.5 py-1 bg-white border border-slate-200 rounded text-slate-700 disabled:opacity-40"
+                className="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-700 dark:text-slate-200 disabled:opacity-40"
               >
                 Next
               </button>

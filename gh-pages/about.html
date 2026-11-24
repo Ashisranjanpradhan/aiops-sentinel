@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About | AIOps Sentinel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge-success">Mission & Philosophy</span>
+      <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Engineering Philosophy & Origin</h1>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
+        Bridging the gap between static code quality enforcement and dynamic runtime distributed reliability.
+      </p>
+    </div>
+
+    <div class="screenshot-preview">
+      <img src="assets/screenshots/about-desktop-1440-light.png" alt="AIOps Sentinel About Page View">
+      <div class="screenshot-caption">
+        <strong>Figure 2:</strong> AIOps Sentinel Project Mission & Enterprise Design System in Light Theme.
+      </div>
+    </div>
+
+    <section style="margin-top: 3rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">Core Engineering Pillars</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Empirical Rigor</h3>
+          <p>We do not train on toy synthetic distributions. Our models are evaluated against standardized microservice failure benchmarks from peer-reviewed literature (RCAEval, 60 curated episodes).</p>
+        </div>
+        <div class="card">
+          <h3>Deterministic Code Assessment</h3>
+          <p>Pre-deployment code inspection must be reproducible and safe. We rely on AST static analysis and verifiable heuristic rubrics rather than unpredictable LLM hallucinations.</p>
+        </div>
+        <div class="card">
+          <h3>Open Standards & Vendor Neutrality</h3>
+          <p>Full native support for OpenTelemetry, Prometheus TSDB, Loki log streams, and W3C trace context. Zero proprietary lock-in.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top: 4rem;">
+      <h2 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem;">Architecture Roadmap</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Phase</th>
+              <th>Status</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Runtime Observability</strong></td>
+              <td>Phase 1</td>
+              <td><span class="badge-success">Completed</span></td>
+              <td>OTel Collector, Prometheus metrics, Loki log streams, and Tempo distributed traces.</td>
+            </tr>
+            <tr>
+              <td><strong>Statistical Anomaly Detectors</strong></td>
+              <td>Phase 2</td>
+              <td><span class="badge-success">Completed</span></td>
+              <td>Non-parametric MAD, online EWMA, and multi-variate Isolation Forest models.</td>
+            </tr>
+            <tr>
+              <td><strong>Codebase Readiness Engine</strong></td>
+              <td>Phase 3</td>
+              <td><span class="badge-success">Completed</span></td>
+              <td>10-dimension AST inspection, SARIF/HTML exports, CI/CD policy quality gates.</td>
+            </tr>
+            <tr>
+              <td><strong>Incident Remediation & Locking</strong></td>
+              <td>Phase 4</td>
+              <td><span class="badge-success">Completed</span></td>
+              <td>PostgreSQL transactional advisory locking to prevent concurrent remediation conflicts.</td>
+            </tr>
+            <tr>
+              <td><strong>Public SaaS & GitHub Publication</strong></td>
+              <td>Phase 5</td>
+              <td><span class="badge-success">Completed</span></td>
+              <td>High-contrast WCAG 2.2 AA design, GitHub Actions CI/CD, and GitHub Pages documentation.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

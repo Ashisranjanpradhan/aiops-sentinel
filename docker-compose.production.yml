@@ -1,0 +1,349 @@
+# ==============================================================================
+# AIOps Sentinel — Production Cloud Deployment Stack
+# ==============================================================================
+
+networks:
+  public-net:
+    driver: bridge
+  app-net:
+    driver: bridge
+  data-net:
+    driver: bridge
+    internal: true
+  observability-net:
+    driver: bridge
+    internal: true
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+  prometheus_prod_data:
+  loki_prod_data:
+  tempo_prod_data:
+  assessment_prod_storage:
+  nginx_ssl_certs:
+
+services:
+  # ============================================================================
+  # 1. DATABASE & PERSISTENT DATA LAYER (Internal Data Network Only)
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: aiops-prod-postgres
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+    networks:
+      - data-net
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aiops_sentinel_prod}
+      POSTGRES_USER: ${POSTGRES_USER:-aiops_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-with-a-strong-production-postgres-password}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    shm_size: 256m
+    command: >
+      postgres
+      -c max_connections=150
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aiops_prod} -d ${POSTGRES_DB:-aiops_sentinel_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aiops-prod-redis
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    networks:
+      - data-net
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_prod_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # 2. OBSERVABILITY STACK (Internal Observability Network Only)
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: aiops-prod-prometheus
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - observability-net
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_prod_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2048M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: aiops-prod-loki
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - observability-net
+    volumes:
+      - ./infra/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki_prod_data:/tmp/loki
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1536M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  tempo:
+    image: grafana/tempo:2.4.0
+    container_name: aiops-prod-tempo
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - observability-net
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./infra/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - tempo_prod_data:/tmp/tempo
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1536M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:3200/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: aiops-prod-otel-collector
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - observability-net
+      - app-net
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./infra/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+
+  # ============================================================================
+  # 3. BACKEND API & BACKGROUND WORKERS
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aiops-prod-backend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - app-net
+      - data-net
+      - observability-net
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      DEMO_MODE: "false"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aiops_prod}:${POSTGRES_PASSWORD:-replace-with-a-strong-production-postgres-password}@postgres:5432/${POSTGRES_DB:-aiops_sentinel_prod}
+      REDIS_URL: redis://redis:6379/0
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      TEMPO_URL: http://tempo:3200
+      SESSION_SECRET: ${SESSION_SECRET:-replace-with-a-long-random-production-secret-32-chars-minimum}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-long-random-production-secret-32-chars-minimum}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://sentinel.company.com}
+      ASSESSMENT_STORAGE_DIR: /app/storage/assessments
+    volumes:
+      - assessment_prod_storage:/app/storage/assessments
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  alert-worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aiops-prod-alert-worker
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    command: ["python3", "/app/scripts/run-alert-worker.py", "--interval", "15"]
+    networks:
+      - data-net
+      - observability-net
+    environment:
+      APP_ENV: production
+      DEMO_MODE: "false"
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aiops_prod}:${POSTGRES_PASSWORD:-replace-with-a-strong-production-postgres-password}@postgres:5432/${POSTGRES_DB:-aiops_sentinel_prod}
+      REDIS_URL: redis://redis:6379/0
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      TEMPO_URL: http://tempo:3200
+      SESSION_SECRET: ${SESSION_SECRET:-replace-with-a-long-random-production-secret-32-chars-minimum}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+
+  # ============================================================================
+  # 4. FRONTEND PRESENTATION LAYER
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aiops-prod-frontend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - app-net
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: ""
+    depends_on:
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536M
+
+  # ============================================================================
+  # 5. PUBLIC INGRESS & REVERSE PROXY (Only Publicly Exposed Service)
+  # ============================================================================
+  gateway:
+    image: nginx:1.25-alpine
+    container_name: aiops-prod-gateway
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - CHOWN
+      - SETUID
+      - SETGID
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    networks:
+      - public-net
+      - app-net
+    volumes:
+      - ./infra/nginx/nginx.production.conf:/etc/nginx/nginx.conf:ro
+      - nginx_ssl_certs:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -10,14 +11,22 @@ class Base(DeclarativeBase):
     pass
 
 
-# SQLite needs specific connect_args for multithreaded async concurrency
-connect_args = {}
-if "sqlite" in settings.DATABASE_URL:
-    connect_args = {"check_same_thread": False}
+# Database engine configuration: connection pooling for PostgreSQL, connect_args for SQLite
+engine_kwargs: dict[str, Any] = {
+    "echo": False,
+    "future": True,
+}
 
-engine = create_async_engine(
-    settings.DATABASE_URL, echo=False, future=True, connect_args=connect_args
-)
+if "sqlite" in settings.DATABASE_URL:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # Production PostgreSQL pool configuration
+    engine_kwargs["pool_size"] = 10
+    engine_kwargs["max_overflow"] = 20
+    engine_kwargs["pool_pre_ping"] = True
+    engine_kwargs["pool_recycle"] = 1800
+
+engine = create_async_engine(settings.DATABASE_URL, **engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine, class_=AsyncSession, autocommit=False, autoflush=False, expire_on_commit=False

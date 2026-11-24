@@ -30,7 +30,12 @@ class UserResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    refresh_token: str | None = None
     user: UserResponse
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str | None = None
 
 
 class ChangePasswordRequest(BaseModel):
@@ -494,3 +499,144 @@ class DataSourceConfigUpdate(BaseModel):
     prometheus_url: str | None = None
     loki_url: str | None = None
     tempo_url: str | None = None
+
+
+# ================== Codebase Production-Readiness Assessment ==================
+
+
+class AssessmentFindingResponse(BaseModel):
+    id: str
+    assessment_id: str
+    dimension: str
+    rule_id: str
+    title: str
+    description: str
+    severity: str
+    file_path: str
+    line_number: int | None = None
+    evidence_snippet: str | None = None
+    remediation_advice: str
+    created_at: datetime
+
+
+class AssessmentJobResponse(BaseModel):
+    id: str
+    assessment_id: str
+    status: str
+    progress_percent: int
+    current_stage: str
+    error_message: str | None = None
+    created_at: datetime
+    completed_at: datetime | None = None
+
+
+class CodebaseAssessmentResponse(BaseModel):
+    id: str
+    project_name: str
+    source_type: str
+    source_size_bytes: int
+    file_count: int
+    primary_languages_json: list[dict[str, Any]] = Field(default_factory=list)
+    frameworks_json: list[str] = Field(default_factory=list)
+    profile: str = "Generic Software Repository"
+    execution_mode: str = "full_assessment"
+    overall_score: float
+    readiness_level: str
+    dimension_scores_json: dict[str, Any] = Field(default_factory=dict)
+    summary: str
+    recommendations_json: list[dict[str, Any]] = Field(default_factory=list)
+    project_tree: list[str] = Field(default_factory=list)
+    capability_matrix: list[dict[str, Any]] = Field(default_factory=list)
+    missing_critical_files: list[dict[str, Any]] = Field(default_factory=list)
+    created_by_user_id: str | None = None
+    created_at: datetime
+    updated_at: datetime
+    findings_count: int = 0
+
+
+class CodebaseAssessmentDetailResponse(CodebaseAssessmentResponse):
+    findings: list[AssessmentFindingResponse] = Field(default_factory=list)
+
+
+class RunbookDefinition(BaseModel):
+    id: str
+    name: str
+    description: str
+    risk_level: str
+    parameters_schema: dict[str, Any] = Field(default_factory=dict)
+    requires_approval: bool = True
+
+
+class RemediationExecutionRequest(BaseModel):
+    runbook_id: str
+    parameters: dict[str, Any] = Field(default_factory=dict)
+    human_approval_confirmed: bool = False
+    approval_notes: str = Field(default="", max_length=500)
+
+
+class RemediationExecutionResponse(BaseModel):
+    remediation_id: str
+    runbook_id: str
+    incident_id: str | None = None
+    service_id: str
+    service_name: str
+    status: str
+    executed_by_user_id: str
+    executed_at: datetime
+    blast_radius: dict[str, Any] = Field(default_factory=dict)
+    action_summary: str
+    audit_event_id: str | None = None
+
+
+# ================== Contact & Enquiries ==================
+
+VALID_ENQUIRY_CATEGORIES = {
+    "General Enquiry",
+    "Technical Support",
+    "Research Collaboration",
+    "Bug Report",
+    "Feature Suggestion",
+    "Partnership or Project Discussion",
+}
+
+
+class ContactEnquiryCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: EmailStr
+    subject: str = Field(min_length=3, max_length=200)
+    category: str = Field(min_length=3, max_length=100)
+    message: str = Field(min_length=10, max_length=5000)
+    website: str | None = Field(default=None, max_length=100)  # honeypot
+    client_timestamp: float | None = None
+
+    def validate_submission_payload(self) -> None:
+        """Enforce category enum validation."""
+        if self.category not in VALID_ENQUIRY_CATEGORIES:
+            allowed = ", ".join(sorted(VALID_ENQUIRY_CATEGORIES))
+            from app.core.errors import ValidationError
+            raise ValidationError(f"Category must be one of: [{allowed}]")
+
+
+class ContactEnquiryUpdate(BaseModel):
+    status: str | None = Field(default=None, pattern=r"^(new|in_review|replied|archived)$")
+    internal_notes: str | None = Field(default=None, max_length=5000)
+
+
+class ContactEnquiryResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    subject: str
+    category: str
+    message: str
+    status: str
+    internal_notes: str | None = None
+    replied_at: datetime | None = None
+    replied_by_user_id: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+

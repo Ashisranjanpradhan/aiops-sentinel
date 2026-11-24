@@ -34,7 +34,7 @@ class ConflictError(AppError):
 class ValidationError(AppError):
     def __init__(self, message: str, details: Any | None = None):
         super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             code="VALIDATION_ERROR",
             message=message,
             details=details,
@@ -51,6 +51,16 @@ class UnauthorizedError(AppError):
 class ForbiddenError(AppError):
     def __init__(self, message: str = "Access forbidden"):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, code="FORBIDDEN", message=message)
+
+
+class RateLimitError(AppError):
+    def __init__(self, message: str = "Rate limit exceeded. Please retry later.", retry_after_seconds: int = 60):
+        super().__init__(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            code="RATE_LIMIT_EXCEEDED",
+            message=message,
+            details={"retry_after_seconds": retry_after_seconds},
+        )
 
 
 async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
@@ -73,7 +83,7 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
         )
 
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content=make_error_response(
             code="VALIDATION_ERROR",
             message="Request input validation failed",

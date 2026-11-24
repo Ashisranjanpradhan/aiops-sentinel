@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIOps Sentinel — Engineering Intelligence & Software Reliability</title>
+  <meta name="description" content="Open-source AI-driven software reliability and codebase production-readiness platform.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-pill">
+        <span>●</span> OpenTelemetry Native • Real AI/ML Root Cause Analysis
+      </div>
+      <h1>Verify Code Before Deployment.<br>Guard Reliability at Runtime.</h1>
+      <p class="hero-subtitle">
+        AIOps Sentinel unites pre-deployment codebase assessment across 10 critical dimensions 
+        with real-time distributed telemetry, non-parametric anomaly detection, and topological root cause analysis.
+      </p>
+      <div class="hero-actions">
+        <a href="docs.html" class="btn-primary">Get Started in 5 Minutes</a>
+        <a href="research.html" class="btn-secondary">Empirical Benchmark Data</a>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="screenshot-preview">
+        <img src="assets/screenshots/overview-desktop-1440-dark.png" alt="AIOps Sentinel Console Overview in Dark Theme">
+        <div class="screenshot-caption">
+          <strong>Figure 1:</strong> AIOps Sentinel Runtime Reliability Console — Multi-service telemetry health, online EWMA & MAD anomaly detections, and active incidents.
+        </div>
+      </div>
+
+      <section style="margin-top: 3rem;">
+        <h2 style="font-size: 1.75rem; color: var(--text-primary); margin-bottom: 0.5rem;">Two Connected Capabilities</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Built for modern cloud-native architectures and rigorous engineering standards.</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <span class="badge-success">Capability 1</span>
+            <h3 style="margin-top: 0.75rem;">Pre-Deployment Codebase Assessment</h3>
+            <p>
+              Upload project folders or ZIP packages to evaluate production-readiness before code touches staging or production.
+              Assesses architecture, error resilience, security posture, configuration management, and test coverage using AST parsing and deterministic heuristic rubrics.
+            </p>
+            <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+              <li>SARIF and HTML compliance report exports</li>
+              <li>Automated CI/CD policy quality gates</li>
+              <li>Zero execution sandboxing for complete safety</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <span class="badge-success">Capability 2</span>
+            <h3 style="margin-top: 0.75rem;">Runtime Reliability Intelligence</h3>
+            <p>
+              Ingest distributed telemetry directly via OpenTelemetry, Prometheus, Loki, and Tempo. Detect subtle performance degradation 
+              using non-parametric Median Absolute Deviation (MAD), online EWMA drift tracking, and multi-variate Isolation Forests.
+            </p>
+            <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+              <li>Topological Random Walk with Restart (RWR) RCA</li>
+              <li>Validated against the official RCAEval benchmark</li>
+              <li>Automated incident remediation with advisory locking</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top: 4rem;">
+        <h2 style="font-size: 1.75rem; color: var(--text-primary); margin-bottom: 0.5rem;">Verified Platform Architecture</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Enterprise-grade containerized microservices ready for cloud deployment.</p>
+
+        <div class="grid-4">
+          <div class="card">
+            <h3>FastAPI Backend</h3>
+            <p>Python 3.11 asynchronous API engine with SQLAlchemy 2.0, Alembic migrations, and Pydantic v2 schemas.</p>
+          </div>
+          <div class="card">
+            <h3>Next.js 14 Frontend</h3>
+            <p>React 18 application with WCAG 2.2 AA compliant typography, dual themes, and responsive layouts.</p>
+          </div>
+          <div class="card">
+            <h3>PostgreSQL & Redis</h3>
+            <p>PostgreSQL 16 relational database with advisory locking and Redis 7 durable queues.</p>
+          </div>
+          <div class="card">
+            <h3>OpenTelemetry Core</h3>
+            <p>Full integration with OTel Collector, Prometheus metric scraping, Loki logs, and Tempo tracing.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

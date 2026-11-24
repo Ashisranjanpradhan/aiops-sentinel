@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Settings, CheckCircle2, ShieldCheck, RefreshCw, Server, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Settings, CheckCircle2, ShieldCheck, RefreshCw, Server, AlertCircle, Mail, ArrowRight } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { LoadingSpinner, ErrorAlert } from "@/components/common/UIStates";
@@ -141,6 +142,28 @@ export default function SettingsPage() {
               <span className="font-semibold text-emerald-700">100% on Error, 10% Baseline</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Customer & Community Inquiries */}
+      <div className="bg-card p-6 rounded-lg border border-border shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-foreground flex items-center space-x-2">
+              <Mail className="w-4 h-4 text-primary" />
+              <span>Contact Enquiries & Triage Console</span>
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Review, filter, and respond to incoming customer messages, collaboration requests, and sales inquiries.
+            </p>
+          </div>
+          <Link
+            href="/settings/enquiries"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold rounded-md shadow-sm transition-colors self-start sm:self-auto"
+          >
+            <span>Open Enquiries</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
 

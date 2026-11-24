@@ -1,0 +1,333 @@
+[
+  {
+    "page": "home",
+    "theme": "light",
+    "totalChecked": 291,
+    "passedCount": 277,
+    "failedCount": 14,
+    "passRate": "95.2%",
+    "sampleFailures": [
+      {
+        "tag": "span",
+        "text": "CODEBASE INTELLIGENCE",
+        "fontSize": "12px",
+        "ratio": "4.46",
+        "required": 4.5,
+        "fg": "rgb(37,99,235)",
+        "bg": "rgb(230,239,252)"
+      },
+      {
+        "tag": "span",
+        "text": "GRADE A (88/100)",
+        "fontSize": "10px",
+        "ratio": "3.43",
+        "required": 4.5,
+        "fg": "rgb(5,150,105)",
+        "bg": "rgb(231,248,242)"
+      },
+      {
+        "tag": "span",
+        "text": "92%",
+        "fontSize": "11px",
+        "ratio": "2.54",
+        "required": 4.5,
+        "fg": "rgb(16,185,129)",
+        "bg": "rgb(255,255,255)"
+      },
+      {
+        "tag": "span",
+        "text": "85%",
+        "fontSize": "11px",
+        "ratio": "2.54",
+        "required": 4.5,
+        "fg": "rgb(16,185,129)",
+        "bg": "rgb(255,255,255)"
+      },
+      {
+        "tag": "span",
+        "text": "95%",
+        "fontSize": "11px",
+        "ratio": "2.54",
+        "required": 4.5,
+        "fg": "rgb(16,185,129)",
+        "bg": "rgb(255,255,255)"
+      }
+    ]
+  },
+  {
+    "page": "home",
+    "theme": "dark",
+    "totalChecked": 291,
+    "passedCount": 291,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "about",
+    "theme": "light",
+    "totalChecked": 77,
+    "passedCount": 77,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "about",
+    "theme": "dark",
+    "totalChecked": 77,
+    "passedCount": 77,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "features",
+    "theme": "light",
+    "totalChecked": 167,
+    "passedCount": 167,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "features",
+    "theme": "dark",
+    "totalChecked": 167,
+    "passedCount": 167,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "research",
+    "theme": "light",
+    "totalChecked": 94,
+    "passedCount": 94,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "research",
+    "theme": "dark",
+    "totalChecked": 94,
+    "passedCount": 94,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "docs",
+    "theme": "light",
+    "totalChecked": 67,
+    "passedCount": 67,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "docs",
+    "theme": "dark",
+    "totalChecked": 67,
+    "passedCount": 67,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "contact",
+    "theme": "light",
+    "totalChecked": 65,
+    "passedCount": 65,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "contact",
+    "theme": "dark",
+    "totalChecked": 65,
+    "passedCount": 65,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "login",
+    "theme": "light",
+    "totalChecked": 11,
+    "passedCount": 11,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "login",
+    "theme": "dark",
+    "totalChecked": 11,
+    "passedCount": 11,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "overview",
+    "theme": "light",
+    "totalChecked": 84,
+    "passedCount": 84,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "overview",
+    "theme": "dark",
+    "totalChecked": 84,
+    "passedCount": 83,
+    "failedCount": 1,
+    "passRate": "98.8%",
+    "sampleFailures": [
+      {
+        "tag": "a",
+        "text": "Overview",
+        "fontSize": "14px",
+        "ratio": "2.94",
+        "required": 4.5,
+        "fg": "rgb(99,102,241)",
+        "bg": "rgb(38,46,83)"
+      }
+    ]
+  },
+  {
+    "page": "codebase-assessments",
+    "theme": "light",
+    "totalChecked": 46,
+    "passedCount": 45,
+    "failedCount": 1,
+    "passRate": "97.8%",
+    "sampleFailures": [
+      {
+        "tag": "span",
+        "text": "items",
+        "fontSize": "11px",
+        "ratio": "2.56",
+        "required": 4.5,
+        "fg": "rgb(148,163,184)",
+        "bg": "rgb(255,255,255)"
+      }
+    ]
+  },
+  {
+    "page": "codebase-assessments",
+    "theme": "dark",
+    "totalChecked": 46,
+    "passedCount": 43,
+    "failedCount": 3,
+    "passRate": "93.5%",
+    "sampleFailures": [
+      {
+        "tag": "a",
+        "text": "Codebase Assessment",
+        "fontSize": "14px",
+        "ratio": "2.94",
+        "required": 4.5,
+        "fg": "rgb(99,102,241)",
+        "bg": "rgb(38,46,83)"
+      },
+      {
+        "tag": "a",
+        "text": "New Assessment",
+        "fontSize": "12px",
+        "ratio": "4.47",
+        "required": 4.5,
+        "fg": "rgb(255,255,255)",
+        "bg": "rgb(99,102,241)"
+      },
+      {
+        "tag": "td",
+        "text": "11/23/2026, 11:37:51 PM",
+        "fontSize": "11px",
+        "ratio": "3.75",
+        "required": 4.5,
+        "fg": "rgb(100,116,139)",
+        "bg": "rgb(15,23,42)"
+      }
+    ]
+  },
+  {
+    "page": "incidents",
+    "theme": "light",
+    "totalChecked": 51,
+    "passedCount": 50,
+    "failedCount": 1,
+    "passRate": "98.0%",
+    "sampleFailures": [
+      {
+        "tag": "span",
+        "text": "Unassigned",
+        "fontSize": "12px",
+        "ratio": "2.56",
+        "required": 4.5,
+        "fg": "rgb(148,163,184)",
+        "bg": "rgb(255,255,255)"
+      }
+    ]
+  },
+  {
+    "page": "incidents",
+    "theme": "dark",
+    "totalChecked": 51,
+    "passedCount": 49,
+    "failedCount": 2,
+    "passRate": "96.1%",
+    "sampleFailures": [
+      {
+        "tag": "a",
+        "text": "Incidents",
+        "fontSize": "14px",
+        "ratio": "2.94",
+        "required": 4.5,
+        "fg": "rgb(99,102,241)",
+        "bg": "rgb(38,46,83)"
+      },
+      {
+        "tag": "span",
+        "text": "Unassigned",
+        "fontSize": "12px",
+        "ratio": "3.75",
+        "required": 4.5,
+        "fg": "rgb(100,116,139)",
+        "bg": "rgb(15,23,42)"
+      }
+    ]
+  },
+  {
+    "page": "services",
+    "theme": "light",
+    "totalChecked": 74,
+    "passedCount": 74,
+    "failedCount": 0,
+    "passRate": "100.0%",
+    "sampleFailures": []
+  },
+  {
+    "page": "services",
+    "theme": "dark",
+    "totalChecked": 74,
+    "passedCount": 73,
+    "failedCount": 1,
+    "passRate": "98.6%",
+    "sampleFailures": [
+      {
+        "tag": "a",
+        "text": "Services",
+        "fontSize": "14px",
+        "ratio": "2.94",
+        "required": 4.5,
+        "fg": "rgb(99,102,241)",
+        "bg": "rgb(38,46,83)"
+      }
+    ]
+  }
+]

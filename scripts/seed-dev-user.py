@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
 
 from sqlalchemy import select
+from app.core.config import settings
 from app.db.session import AsyncSessionLocal, init_db
 from app.core.security import hash_password
 from app.models.entities import (
@@ -26,6 +27,10 @@ from app.models.entities import (
 
 
 async def seed():
+    if settings.ENVIRONMENT.lower() in ("production", "staging"):
+        print("SECURITY ABORT: Refusing to seed default development accounts in production or staging environment.")
+        sys.exit(1)
+
     print("Initializing database tables...")
     await init_db()
 

@@ -2,7 +2,9 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     alerts,
+    assessments,
     auth,
+    contact,
     datasets,
     deployments,
     experiments,
@@ -12,6 +14,7 @@ from app.api.v1 import (
     meta,
     overview,
     profile,
+    remediations,
     services,
     settings,
     topology,
@@ -33,3 +36,7 @@ api_router.include_router(datasets.router)
 api_router.include_router(alerts.router)
 api_router.include_router(settings.router)
 api_router.include_router(profile.router)
+api_router.include_router(assessments.router)
+api_router.include_router(remediations.router)
+api_router.include_router(contact.router)
+

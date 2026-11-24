@@ -3,12 +3,121 @@
 @tailwind utilities;
 
 :root {
+  /* Centralized Theme Tokens - Light Mode */
+  --background-rgb: 248 250 252;       /* #F8FAFC */
+  --surface-rgb: 255 255 255;          /* #FFFFFF */
+  --surface-raised-rgb: 241 245 249;   /* #F1F5F9 */
+  --card-rgb: 255 255 255;             /* #FFFFFF */
+  --card-border-rgb: 226 232 240;      /* #E2E8F0 */
+  --border-rgb: 226 232 240;           /* #E2E8F0 */
+  --border-strong-rgb: 203 213 225;    /* #CBD5E1 */
+
+  /* Text & Foreground Tokens - Light Mode */
+  --text-primary-rgb: 15 23 42;        /* #0F172A (slate-900) - Contrast: 15.8:1 */
+  --text-body-rgb: 51 65 85;           /* #334155 (slate-700) - Contrast: 9.7:1 */
+  --text-secondary-rgb: 71 85 105;     /* #475569 (slate-600) - Contrast: 6.8:1 */
+  --text-muted-rgb: 100 116 139;       /* #64748B (slate-500) - Contrast: 4.6:1 */
+
+  /* Accent & Primary Tokens - Light Mode */
+  --primary-rgb: 79 70 229;            /* #4F46E5 (indigo-600) */
+  --primary-hover-rgb: 67 56 202;      /* #4338CA (indigo-700) */
+  --primary-foreground-rgb: 255 255 255;/* #FFFFFF */
+
+  /* Status Tokens - Light Mode */
+  --status-healthy-rgb: 22 163 74;     /* #16A34A */
+  --status-warning-rgb: 217 119 6;     /* #D97706 */
+  --status-critical-rgb: 220 38 38;    /* #DC2626 */
+
+  /* Direct Hex Aliases for CSS variables */
   --background: #f8fafc;
+  --surface: #ffffff;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --border: #e2e8f0;
   --foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+}
+
+.dark {
+  /* Centralized Theme Tokens - Dark Mode */
+  --background-rgb: 11 18 32;          /* #0B1220 - Rich deep dark slate */
+  --surface-rgb: 17 24 39;             /* #111827 - Surface card */
+  --surface-raised-rgb: 30 41 59;      /* #1E293B - Raised container */
+  --card-rgb: 17 24 39;                /* #111827 */
+  --card-border-rgb: 51 65 85;         /* #334155 */
+  --border-rgb: 51 65 85;              /* #334155 */
+  --border-strong-rgb: 71 85 105;      /* #475569 */
+
+  /* Text & Foreground Tokens - Dark Mode */
+  --text-primary-rgb: 248 250 252;     /* #F8FAFC (slate-50) - Contrast: 17.5:1 */
+  --text-body-rgb: 203 213 225;        /* #CBD5E1 (slate-300) - Contrast: 11.2:1 */
+  --text-secondary-rgb: 148 163 184;   /* #94A3B8 (slate-400) - Contrast: 7.3:1 */
+  --text-muted-rgb: 100 116 139;       /* #64748B (slate-500) - Contrast: 4.6:1 */
+
+  /* Accent & Primary Tokens - Dark Mode */
+  --primary-rgb: 129 140 248;          /* #818CF8 (indigo-400) */
+  --primary-hover-rgb: 99 102 241;     /* #6366F1 (indigo-500) */
+  --primary-foreground-rgb: 11 18 32;  /* #0B1220 */
+
+  /* Status Tokens - Dark Mode */
+  --status-healthy-rgb: 34 197 94;     /* #22C55E */
+  --status-warning-rgb: 245 158 11;    /* #F59E0B */
+  --status-critical-rgb: 239 68 68;    /* #EF4444 */
+
+  /* Direct Hex Aliases for CSS variables */
+  --background: #0b1220;
+  --surface: #111827;
+  --card-bg: #111827;
+  --card-border: #334155;
+  --border: #334155;
+  --foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--text-body-rgb));
+  background-color: rgb(var(--background-rgb));
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Headings base typography */
+h1, h2, h3, h4, h5, h6 {
+  color: rgb(var(--text-primary-rgb));
+  letter-spacing: -0.02em;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border-strong-rgb));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--text-muted-rgb));
 }

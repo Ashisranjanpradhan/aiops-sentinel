@@ -112,28 +112,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center items-center space-x-2 text-2xl font-bold text-slate-900 tracking-tight">
-          <ShieldCheck className="w-8 h-8 text-indigo-600" />
+        <div className="flex justify-center items-center space-x-2 text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+          <ShieldCheck className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
           <span>AIOps Sentinel</span>
         </div>
-        <h2 className="mt-2 text-center text-sm text-slate-600">
+        <h2 className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
           Intelligent Observability & Incident Investigation Platform
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-lg sm:px-10">
+        <div className="bg-white dark:bg-slate-900 py-8 px-6 shadow-sm border border-slate-200 dark:border-slate-800 rounded-lg sm:px-10">
           {/* Tab Selector */}
-          <div className="flex border-b border-slate-200 mb-6">
+          <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6">
             <button
               type="button"
               onClick={switchToLogin}
               className={`flex-1 pb-3 text-xs font-semibold text-center border-b-2 transition-colors ${
                 !isRegisterMode
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
+                  ? "border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400"
+                  : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               Sign In
@@ -143,8 +143,8 @@ export default function LoginPage() {
               onClick={switchToRegister}
               className={`flex-1 pb-3 text-xs font-semibold text-center border-b-2 transition-colors ${
                 isRegisterMode
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
+                  ? "border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400"
+                  : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               Create Account
@@ -153,22 +153,22 @@ export default function LoginPage() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             {errorMsg && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded text-rose-800 text-xs flex items-center space-x-2">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded text-rose-800 dark:text-rose-300 text-xs flex items-center space-x-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {successMsg && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 text-xs flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded text-emerald-800 dark:text-emerald-300 text-xs flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{successMsg}</span>
               </div>
             )}
 
             {isRegisterMode && (
               <div>
-                <label className="block text-xs font-medium text-slate-700">Display Name / Full Name</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Display Name / Full Name</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <User className="h-4 w-4" />
@@ -178,7 +178,7 @@ export default function LoginPage() {
                     required
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     placeholder="e.g. Ashis Pradhan"
                   />
                 </div>
@@ -186,7 +186,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-700">Email Address</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Email Address</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Mail className="h-4 w-4" />
@@ -196,14 +196,14 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="analyst@domain.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700">Password</label>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Password</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                   <Lock className="h-4 w-4" />
@@ -213,13 +213,13 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-9 pr-10 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="block w-full pl-9 pr-10 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder={isRegisterMode ? "Min. 8 characters" : "Enter password"}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -228,7 +228,7 @@ export default function LoginPage() {
 
             {isRegisterMode && (
               <div>
-                <label className="block text-xs font-medium text-slate-700">Confirm Password</label>
+                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">Confirm Password</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <Lock className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function LoginPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="block w-full pl-9 pr-3 py-2 text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     placeholder="Confirm your password"
                   />
                 </div>
@@ -264,8 +264,8 @@ export default function LoginPage() {
 
           {/* Dev Seed Credentials helper */}
           {!isRegisterMode && (
-            <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 text-center">
-              <span className="font-medium text-slate-700 block mb-1">Local Dev Seed Account:</span>
+            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 text-center">
+              <span className="font-medium text-slate-700 dark:text-slate-300 block mb-1">Local Dev Seed Account:</span>
               <code>admin@aiops.sentinel</code> / <code>sentinel-admin-1234</code>
             </div>
           )}

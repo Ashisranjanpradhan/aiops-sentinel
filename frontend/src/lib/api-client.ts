@@ -35,7 +35,7 @@ export async function apiClient<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const isBrowser = typeof window !== "undefined";
-  const primaryBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  const primaryBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? (isBrowser ? "" : "http://backend:8000");
   const primaryUrl = `${primaryBase}${API_PREFIX}${endpoint}`;
 
   // Read token from localStorage if in browser
@@ -61,10 +61,19 @@ export async function apiClient<T>(
       credentials: "include",
     });
 
-    const json: ApiResponse<T> = await res.json();
+    let json: ApiResponse<T>;
+    try {
+      json = await res.json();
+    } catch {
+      throw new ApiError(
+        `Server returned HTTP ${res.status}: ${res.statusText || "Error"}`,
+        `HTTP_${res.status}`
+      );
+    }
+
     if (!res.ok || json.error) {
       const err = json.error || {
-        code: "HTTP_ERROR",
+        code: `HTTP_${res.status}`,
         message: `Request failed with status ${res.status}`,
       };
       throw new ApiError(err.message, err.code, err.details);

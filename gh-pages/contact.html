@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Project Info | AIOps Sentinel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">AS</span>
+        <span>AIOps <span class="brand-accent">Sentinel</span></span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">Overview</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="research.html">Research</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+        <a href="https://github.com" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge-success">Project Resources</span>
+      <h1 style="font-size: 2.5rem; color: var(--text-primary); margin-top: 0.5rem; line-height: 1.2;">Contact & Community Channels</h1>
+      <p style="font-size: 1.05rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.5rem;">
+        Get in touch with maintainers, join discussions, access research datasets, or report issues.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>GitHub Collaboration</h3>
+        <p>AIOps Sentinel is developed transparently on GitHub:</p>
+        <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+          <li><strong>Repository:</strong> Source code, Dockerfiles, and CI/CD pipelines</li>
+          <li><strong>Issue Tracker:</strong> Bug reports, technical enhancement proposals</li>
+          <li><strong>Discussions:</strong> Architecture design proposals and RCA questions</li>
+          <li><strong>Releases:</strong> Versioned release notes and container image tags</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Direct Engineering Inquiries</h3>
+        <p>Contact channels for enterprise inquiries and disclosures:</p>
+        <ul style="margin-top: 1rem; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+          <li><strong>General Support:</strong> <code>support@aiops-sentinel.local</code></li>
+          <li><strong>Security Disclosures:</strong> <code>security@aiops-sentinel.local</code></li>
+          <li><strong>Research Collaboration:</strong> <code>research@aiops-sentinel.local</code></li>
+          <li><strong>SLA Target:</strong> 24-hour business day response commitment</li>
+        </ul>
+      </div>
+    </div>
+
+    <section style="margin-top: 3.5rem;">
+      <div class="card" style="background-color: var(--surface-raised);">
+        <h3>Live Sentinel Application Access</h3>
+        <p style="margin-top: 0.5rem;">
+          The live interactive application runs separately on production infrastructure with full PostgreSQL persistence, 
+          Redis queues, and background alert workers. Access the live console using your authorized corporate credentials.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 AIOps Sentinel Project. Open research & software reliability intelligence.</div>
+        <div>Apache 2.0 License • Hosted on GitHub Pages</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

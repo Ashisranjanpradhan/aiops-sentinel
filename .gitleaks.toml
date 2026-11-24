@@ -1,0 +1,18 @@
+# Gitleaks Configuration for AIOps Sentinel
+title = "AIOps Sentinel Gitleaks Config"
+
+[allowlist]
+description = "Global allowlist for build artifacts, mock test fixtures, and documentation templates"
+paths = [
+    '''backend/tests/unit/test_assessment\.py''',
+    '''\.next/''',
+    '''artifacts/''',
+    '''frontend/\.next/''',
+]
+regexes = [
+    '''sk-abcdef1234567890abcdef1234567890''',
+    '''AKIA1234567890ABCDEF''',
+    '''superSecretPass123''',
+    '''<GENERATE_VIA_OPENSSL_RAND_HEX_32>''',
+    '''<STRONG_PRODUCTION_PASSWORD>''',
+]

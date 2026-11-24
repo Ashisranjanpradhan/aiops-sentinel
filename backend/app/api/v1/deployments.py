@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_operator, get_current_user
 from app.core.response import make_response
 from app.db.session import get_db
 from app.models.entities import User
@@ -41,7 +41,7 @@ async def run_preflight_check(
 @router.post("/deliver")
 async def deliver_deployment(
     req: DeliverDeploymentRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_operator),
     db: AsyncSession = Depends(get_db),
 ):
     res = await deployment_service.deliver_deployment(

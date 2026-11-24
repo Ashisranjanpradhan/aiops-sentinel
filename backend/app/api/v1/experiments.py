@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_analyst, get_current_user
 from app.core.response import make_response
 from app.db.session import get_db
 from app.models.entities import User
@@ -31,7 +31,7 @@ async def list_experiments(
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_experiment(
     payload: ExperimentRunCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_analyst),
     db: AsyncSession = Depends(get_db),
 ):
     run = await experiment_service.create_experiment(db, payload)

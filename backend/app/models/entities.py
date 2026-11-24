@@ -295,3 +295,95 @@ class DeploymentEvent(Base):
     details_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
 
     service: Mapped["Service"] = relationship("Service")
+
+
+class CodebaseAssessment(Base):
+    __tablename__ = "codebase_assessments"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    project_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(50), default="zip", nullable=False)
+    source_size_bytes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    file_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    primary_languages_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    frameworks_json: Mapped[list[str]] = mapped_column(JSON, default=list)
+    overall_score: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    readiness_level: Mapped[str] = mapped_column(String(50), default="NEEDS_WORK", nullable=False)
+    dimension_scores_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    summary: Mapped[str] = mapped_column(Text, default="")
+    recommendations_json: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    created_by_user_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+    findings: Mapped[list["AssessmentFinding"]] = relationship(
+        "AssessmentFinding", back_populates="assessment", cascade="all, delete-orphan"
+    )
+    jobs: Mapped[list["AssessmentJob"]] = relationship(
+        "AssessmentJob", back_populates="assessment", cascade="all, delete-orphan"
+    )
+
+
+class AssessmentFinding(Base):
+    __tablename__ = "assessment_findings"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    assessment_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("codebase_assessments.id"), index=True, nullable=False
+    )
+    dimension: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    rule_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="")
+    severity: Mapped[str] = mapped_column(String(20), default="medium", index=True, nullable=False)
+    file_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    line_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    evidence_snippet: Mapped[str | None] = mapped_column(Text, nullable=True)
+    remediation_advice: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    assessment: Mapped["CodebaseAssessment"] = relationship(
+        "CodebaseAssessment", back_populates="findings"
+    )
+
+
+class AssessmentJob(Base):
+    __tablename__ = "assessment_jobs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    assessment_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("codebase_assessments.id"), index=True, nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(50), default="pending", index=True, nullable=False)
+    progress_percent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    current_stage: Mapped[str] = mapped_column(String(100), default="queued", nullable=False)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    assessment: Mapped["CodebaseAssessment"] = relationship("CodebaseAssessment", back_populates="jobs")
+
+
+class ContactEnquiry(Base):
+    __tablename__ = "contact_enquiries"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    subject: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    client_ip: Mapped[str] = mapped_column(String(50), default="unknown", nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="new", index=True, nullable=False)  # new, in_review, replied, archived
+    internal_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    replied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    replied_by_user_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+

@@ -1,12 +1,3 @@
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
-
-from app.core.errors import NotFoundError
-from app.models.entities import DeploymentEvent, Incident
-from app.schemas.domain import DeploymentResponse
-
-
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -56,15 +47,19 @@ class DeploymentService:
         result = await db.execute(query)
         deps = result.scalars().all()
 
+        service_ids = list({d.service_id for d in deps if d.service_id})
+        inc_counts: dict[str, int] = {}
+        if service_ids:
+            inc_res = await db.execute(
+                select(Incident.primary_service_id, func.count(Incident.id))
+                .where(Incident.primary_service_id.in_(service_ids))
+                .group_by(Incident.primary_service_id)
+            )
+            inc_counts = dict(inc_res.all())
+
         responses: list[DeploymentResponse] = []
         for d in deps:
-            # Check correlated incidents (within +/- 30 minutes of deployment)
-            inc_res = await db.execute(
-                select(func.count())
-                .select_from(Incident)
-                .where(Incident.primary_service_id == d.service_id)
-            )
-            corr_count = inc_res.scalar_one()
+            corr_count = inc_counts.get(d.service_id, 0)
 
             responses.append(
                 DeploymentResponse(

@@ -1,0 +1,251 @@
+{
+  "42": [
+    {
+      "case_id": "case_42_0001",
+      "true_cause": "frontend",
+      "predicted_top_1": "cart",
+      "rank": 6,
+      "reciprocal_rank": 0.1667,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_42_0003",
+      "true_cause": "cart",
+      "predicted_top_1": "checkout",
+      "rank": 4,
+      "reciprocal_rank": 0.25,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_42_0004",
+      "true_cause": "cart",
+      "predicted_top_1": "payment",
+      "rank": 7,
+      "reciprocal_rank": 0.1429,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_42_0006",
+      "true_cause": "frontend",
+      "predicted_top_1": "cart",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_42_0012",
+      "true_cause": "recommendation",
+      "predicted_top_1": "frontend",
+      "rank": 4,
+      "reciprocal_rank": 0.25,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_42_0017",
+      "true_cause": "shipping",
+      "predicted_top_1": "checkout",
+      "rank": 3,
+      "reciprocal_rank": 0.3333,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_42_0027",
+      "true_cause": "recommendation",
+      "predicted_top_1": "payment",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_42_0031",
+      "true_cause": "recommendation",
+      "predicted_top_1": "recommendation",
+      "rank": 1,
+      "reciprocal_rank": 1.0,
+      "hit_1": true,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_42_0049",
+      "true_cause": "auth",
+      "predicted_top_1": "shipping",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "hit_1": false,
+      "hit_3": true
+    }
+  ],
+  "123": [
+    {
+      "case_id": "case_123_0001",
+      "true_cause": "payment",
+      "predicted_top_1": "cart",
+      "rank": 3,
+      "reciprocal_rank": 0.3333,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_123_0006",
+      "true_cause": "shipping",
+      "predicted_top_1": "payment",
+      "rank": 7,
+      "reciprocal_rank": 0.1429,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_123_0007",
+      "true_cause": "recommendation",
+      "predicted_top_1": "cart",
+      "rank": 5,
+      "reciprocal_rank": 0.2,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_123_0020",
+      "true_cause": "auth",
+      "predicted_top_1": "checkout",
+      "rank": 4,
+      "reciprocal_rank": 0.25,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_123_0036",
+      "true_cause": "recommendation",
+      "predicted_top_1": "checkout",
+      "rank": 4,
+      "reciprocal_rank": 0.25,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_123_0037",
+      "true_cause": "recommendation",
+      "predicted_top_1": "payment",
+      "rank": 3,
+      "reciprocal_rank": 0.3333,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_123_0045",
+      "true_cause": "checkout",
+      "predicted_top_1": "frontend",
+      "rank": 3,
+      "reciprocal_rank": 0.3333,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_123_0052",
+      "true_cause": "payment",
+      "predicted_top_1": "cart",
+      "rank": 6,
+      "reciprocal_rank": 0.1667,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_123_0056",
+      "true_cause": "auth",
+      "predicted_top_1": "shipping",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "hit_1": false,
+      "hit_3": true
+    }
+  ],
+  "999": [
+    {
+      "case_id": "case_999_0002",
+      "true_cause": "frontend",
+      "predicted_top_1": "recommendation",
+      "rank": 4,
+      "reciprocal_rank": 0.25,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0007",
+      "true_cause": "recommendation",
+      "predicted_top_1": "payment",
+      "rank": 5,
+      "reciprocal_rank": 0.2,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0008",
+      "true_cause": "shipping",
+      "predicted_top_1": "cart",
+      "rank": 7,
+      "reciprocal_rank": 0.1429,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0012",
+      "true_cause": "auth",
+      "predicted_top_1": "frontend",
+      "rank": 2,
+      "reciprocal_rank": 0.5,
+      "hit_1": false,
+      "hit_3": true
+    },
+    {
+      "case_id": "case_999_0018",
+      "true_cause": "auth",
+      "predicted_top_1": "frontend",
+      "rank": 6,
+      "reciprocal_rank": 0.1667,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0030",
+      "true_cause": "recommendation",
+      "predicted_top_1": "auth",
+      "rank": 5,
+      "reciprocal_rank": 0.2,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0041",
+      "true_cause": "payment",
+      "predicted_top_1": "auth",
+      "rank": 7,
+      "reciprocal_rank": 0.1429,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0052",
+      "true_cause": "checkout",
+      "predicted_top_1": "frontend",
+      "rank": 7,
+      "reciprocal_rank": 0.1429,
+      "hit_1": false,
+      "hit_3": false
+    },
+    {
+      "case_id": "case_999_0056",
+      "true_cause": "cart",
+      "predicted_top_1": "recommendation",
+      "rank": 3,
+      "reciprocal_rank": 0.3333,
+      "hit_1": false,
+      "hit_3": true
+    }
+  ]
+}

@@ -44,18 +44,22 @@ class ServicesService:
         result = await db.execute(query)
         services = result.scalars().all()
 
-        responses: list[ServiceResponse] = []
-        for s in services:
-            # Count active incidents
+        service_ids = [s.id for s in services]
+        active_counts: dict[str, int] = {}
+        if service_ids:
             inc_res = await db.execute(
-                select(func.count())
-                .select_from(Incident)
+                select(Incident.primary_service_id, func.count(Incident.id))
                 .where(
-                    Incident.primary_service_id == s.id,
+                    Incident.primary_service_id.in_(service_ids),
                     Incident.status.in_(["open", "acknowledged", "investigating"]),
                 )
+                .group_by(Incident.primary_service_id)
             )
-            active_count = inc_res.scalar_one()
+            active_counts = dict(inc_res.all())
+
+        responses: list[ServiceResponse] = []
+        for s in services:
+            active_count = active_counts.get(s.id, 0)
 
             # Dynamic telemetry indicators
             meta = s.metadata_json or {}

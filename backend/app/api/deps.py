@@ -37,7 +37,29 @@ async def get_current_user(
     return user
 
 
-async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role != "admin":
-        raise ForbiddenError("Administrator access required")
-    return current_user
+ROLE_HIERARCHY = {
+    "viewer": 1,
+    "analyst": 2,
+    "operator": 3,
+    "admin": 4,
+}
+
+
+def require_roles(*allowed_roles: str):
+    """Enforce server-side Role-Based Access Control (RBAC). Admin always has superuser access."""
+    async def role_checker(current_user: User = Depends(get_current_user)) -> User:
+        user_role = (current_user.role or "viewer").lower()
+        if user_role not in allowed_roles and user_role != "admin":
+            allowed_str = ", ".join(allowed_roles)
+            raise ForbiddenError(
+                f"Operation requires one of the following roles: [{allowed_str}]. Your role is '{user_role}'."
+            )
+        return current_user
+
+    return role_checker
+
+
+get_current_admin = require_roles("admin")
+get_current_operator = require_roles("admin", "operator")
+get_current_analyst = require_roles("admin", "operator", "analyst")
+

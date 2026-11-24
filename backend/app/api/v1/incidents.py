@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_analyst, get_current_user
 from app.core.response import make_response
 from app.db.session import get_db
 from app.models.entities import User
@@ -48,7 +48,7 @@ async def list_incidents(
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_incident(
     payload: IncidentCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_analyst),
     db: AsyncSession = Depends(get_db),
 ):
     incident = await incident_service.create_incident(
@@ -72,7 +72,7 @@ async def get_incident(
 async def update_incident(
     incident_id: str,
     payload: IncidentUpdate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_analyst),
     db: AsyncSession = Depends(get_db),
 ):
     await incident_service.update_incident(
@@ -86,7 +86,7 @@ async def update_incident(
 async def add_note(
     incident_id: str,
     payload: NoteCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_analyst),
     db: AsyncSession = Depends(get_db),
 ):
     event = await incident_service.add_note(
@@ -105,7 +105,7 @@ async def add_note(
 @router.post("/{incident_id}/investigations", status_code=status.HTTP_202_ACCEPTED)
 async def run_investigation(
     incident_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_analyst),
     db: AsyncSession = Depends(get_db),
 ):
     job = await investigation_service.queue_investigation(

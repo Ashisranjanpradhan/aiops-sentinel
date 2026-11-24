@@ -5,14 +5,15 @@ from sklearn.ensemble import IsolationForest
 
 class IsolationForestDetector(BaseDetector):
     """
-    Unsupervised multivariate anomaly detector using Isolation Forest.
+    Unsupervised multivariate anomaly detector using scikit-learn Isolation Forest.
+    Features robust warm-up, baseline fitting, and non-zero inference scoring.
     """
 
     def __init__(
         self,
         contamination: float = 0.05,
         random_state: int = 42,
-        min_samples: int = 15,
+        min_samples: int = 10,
         detector_version: str = "isolation_forest_v1.0",
     ):
         self.contamination = contamination
@@ -44,19 +45,31 @@ class IsolationForestDetector(BaseDetector):
         window_end: str | None = None,
     ) -> AnomalyResult:
         clean_vals = [v for v in values if v is not None and not np.isnan(v)]
-        if len(clean_vals) < self.min_samples:
+        if not clean_vals:
             return AnomalyResult(
                 is_anomaly=False,
                 score=0.0,
                 threshold=0.5,
                 metric_name=metric_name,
                 service_name=service_name,
-                reason="Insufficient data points for Isolation Forest",
+                reason="Empty input series",
                 evidence_summary={},
             )
 
+        # Warm-up phase: if not yet fitted, fit if sufficient samples, else return warm-up status
         if not self.is_fitted:
-            self.fit(clean_vals)
+            if len(clean_vals) >= self.min_samples:
+                self.fit(clean_vals)
+            else:
+                return AnomalyResult(
+                    is_anomaly=False,
+                    score=0.0,
+                    threshold=0.5,
+                    metric_name=metric_name,
+                    service_name=service_name,
+                    reason=f"Warm-up phase ({len(clean_vals)}/{self.min_samples} samples)",
+                    evidence_summary={"warmup_samples": len(clean_vals)},
+                )
 
         recent_val = clean_vals[-1]
         x_recent = np.array([[recent_val]])
@@ -79,5 +92,6 @@ class IsolationForestDetector(BaseDetector):
             evidence_summary={
                 "decision_score": recent_raw,
                 "contamination": self.contamination,
+                "window_size": len(clean_vals),
             },
         )

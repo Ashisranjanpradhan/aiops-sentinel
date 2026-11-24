@@ -1,0 +1,222 @@
+name: aiops-staging
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aiops-staging-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aiops_sentinel_staging
+      POSTGRES_USER: aiops_staging
+      POSTGRES_PASSWORD: StrongStagingPassword_2026!
+    ports:
+      - "5433:5432"
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+    shm_size: 256m
+    command: >
+      postgres
+      -c max_connections=100
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiops_staging -d aiops_sentinel_staging"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: aiops-staging-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "6380:6379"
+    volumes:
+      - staging_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: aiops-staging-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - staging_prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    ports:
+      - "9091:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: aiops-staging-loki
+    restart: unless-stopped
+    user: "0:0"
+    volumes:
+      - ./infra/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - staging_loki_data:/tmp/loki
+    ports:
+      - "3101:3100"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tempo:
+    image: grafana/tempo:2.4.0
+    container_name: aiops-staging-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./infra/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - staging_tempo_data:/tmp/tempo
+    ports:
+      - "3201:3200"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:3200/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: aiops-staging-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./infra/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aiops-staging-backend
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      DEMO_MODE: "false"
+      DATABASE_URL: postgresql+asyncpg://aiops_staging:StrongStagingPassword_2026!@postgres:5432/aiops_sentinel_staging
+      REDIS_URL: redis://redis:6379/0
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      TEMPO_URL: http://tempo:3200
+      SESSION_SECRET: StagingSessionSecret_32CharsMinimumSecureKey2026!
+      JWT_SECRET_KEY: StagingJwtSecret_32CharsMinimumSecureKey2026!
+      CORS_ALLOWED_ORIGINS: http://localhost:8088,http://localhost:3001,http://localhost,http://gateway:80
+      ASSESSMENT_STORAGE_DIR: /app/storage/assessments
+    volumes:
+      - staging_assessment_storage:/app/storage/assessments
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aiops-staging-alert-worker
+    restart: unless-stopped
+    command: ["python3", "/app/scripts/run-alert-worker.py", "--interval", "15"]
+    environment:
+      APP_ENV: production
+      DEMO_MODE: "false"
+      DATABASE_URL: postgresql+asyncpg://aiops_staging:StrongStagingPassword_2026!@postgres:5432/aiops_sentinel_staging
+      REDIS_URL: redis://redis:6379/0
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      TEMPO_URL: http://tempo:3200
+      SESSION_SECRET: StagingSessionSecret_32CharsMinimumSecureKey2026!
+      JWT_SECRET_KEY: StagingJwtSecret_32CharsMinimumSecureKey2026!
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import sys; sys.exit(0)'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aiops-staging-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: ""
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/login"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    image: nginx:1.25-alpine
+    container_name: aiops-staging-gateway
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  staging_postgres_data:
+  staging_redis_data:
+  staging_prometheus_data:
+  staging_loki_data:
+  staging_tempo_data:
+  staging_assessment_storage:

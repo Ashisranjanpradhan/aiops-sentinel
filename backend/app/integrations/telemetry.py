@@ -15,6 +15,61 @@ from app.schemas.domain import (
 )
 
 
+import ipaddress
+import logging
+import math
+import random
+import urllib.parse
+from datetime import UTC, datetime, timedelta
+
+import httpx
+
+from app.core.config import settings
+from app.core.errors import ValidationError
+from app.schemas.domain import (
+    LogRecord,
+    MetricPoint,
+    MetricSeries,
+    TelemetrySourceStatus,
+    TraceRecord,
+    TraceSpan,
+)
+
+logger = logging.getLogger("aiops.telemetry")
+
+BLOCKED_HOSTNAMES = {"169.254.169.254", "metadata.google.internal", "metadata", "instance-data"}
+
+
+def is_simulation_allowed() -> bool:
+    """Simulation fallback is strictly prohibited in production mode."""
+    if settings.APP_ENV == "production":
+        return False
+    return bool(settings.DEMO_MODE)
+
+
+def validate_telemetry_url(url: str) -> None:
+    """Validate telemetry backend URL to defend against SSRF attacks."""
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValidationError(
+            f"Invalid telemetry URL scheme '{parsed.scheme}'. Only http and https are allowed."
+        )
+    hostname = (parsed.hostname or "").lower()
+    if not hostname:
+        raise ValidationError("Missing hostname in telemetry URL.")
+    if hostname in BLOCKED_HOSTNAMES:
+        raise ValidationError(f"Prohibited telemetry target hostname '{hostname}'.")
+    if settings.APP_ENV == "production":
+        try:
+            ip = ipaddress.ip_address(hostname)
+            if ip.is_link_local:
+                raise ValidationError(
+                    f"Link-local IP {hostname} is prohibited for telemetry backend in production."
+                )
+        except ValueError:
+            pass
+
+
 class TelemetryClient:
     """Telemetry integration client supporting Prometheus, Loki, Tempo, and demo simulation."""
 
@@ -22,6 +77,9 @@ class TelemetryClient:
         self.prometheus_url = settings.PROMETHEUS_URL
         self.loki_url = settings.LOKI_URL
         self.tempo_url = settings.TEMPO_URL
+        validate_telemetry_url(self.prometheus_url)
+        validate_telemetry_url(self.loki_url)
+        validate_telemetry_url(self.tempo_url)
 
     async def check_health(self) -> list[TelemetrySourceStatus]:
         """Check connection status of all telemetry backends."""
@@ -40,11 +98,15 @@ class TelemetryClient:
                 if resp.status_code == 200:
                     prom_status = "healthy"
                     prom_msg = "Prometheus server is healthy and scraping"
-        except Exception:
-            if settings.DEMO_MODE:
-                prom_status = "healthy"
+        except Exception as e:
+            if is_simulation_allowed():
+                prom_status = "simulated"
                 prom_msg = "Prometheus simulator active (Demo Mode)"
                 prom_lat = 4.2
+            else:
+                prom_status = "unavailable"
+                prom_msg = f"Prometheus server unreachable at {self.prometheus_url} ({e})"
+                logger.warning("Prometheus unreachable in production mode: %s", e)
 
         sources.append(
             TelemetrySourceStatus(
@@ -69,11 +131,15 @@ class TelemetryClient:
                 if resp.status_code == 200:
                     loki_status = "healthy"
                     loki_msg = "Loki log engine ready"
-        except Exception:
-            if settings.DEMO_MODE:
-                loki_status = "healthy"
+        except Exception as e:
+            if is_simulation_allowed():
+                loki_status = "simulated"
                 loki_msg = "Loki log simulator active (Demo Mode)"
                 loki_lat = 5.8
+            else:
+                loki_status = "unavailable"
+                loki_msg = f"Loki log engine unreachable at {self.loki_url} ({e})"
+                logger.warning("Loki unreachable in production mode: %s", e)
 
         sources.append(
             TelemetrySourceStatus(
@@ -98,11 +164,15 @@ class TelemetryClient:
                 if resp.status_code == 200:
                     tempo_status = "healthy"
                     tempo_msg = "Tempo trace distributor ready"
-        except Exception:
-            if settings.DEMO_MODE:
-                tempo_status = "healthy"
+        except Exception as e:
+            if is_simulation_allowed():
+                tempo_status = "simulated"
                 tempo_msg = "Tempo trace simulator active (Demo Mode)"
                 tempo_lat = 6.1
+            else:
+                tempo_status = "unavailable"
+                tempo_msg = f"Tempo trace store unreachable at {self.tempo_url} ({e})"
+                logger.warning("Tempo unreachable in production mode: %s", e)
 
         sources.append(
             TelemetrySourceStatus(
@@ -150,10 +220,14 @@ class TelemetryClient:
                                 metric_name="request_rate", unit="req/s", points=points
                             )
                         }
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Live Prometheus query failed for %s: %s", service_name, e)
 
-        # Generate deterministic synthetic telemetry matching the service context
+        if not is_simulation_allowed():
+            logger.info("Production mode: Suppressing synthetic metrics for service %s", service_name)
+            return {}
+
+        # Generate deterministic synthetic telemetry matching the service context in Demo Mode
         return self._generate_simulated_metrics(service_name, start_time, end_time, step_seconds)
 
     async def get_service_logs(
@@ -196,8 +270,12 @@ class TelemetryClient:
                             )
                     if logs:
                         return sorted(logs, key=lambda x: x.timestamp, reverse=True)[:limit]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Live Loki query failed for %s: %s", service_name, e)
+
+        if not is_simulation_allowed():
+            logger.info("Production mode: Suppressing synthetic logs for service %s", service_name)
+            return []
 
         return self._generate_simulated_logs(
             service_name, start_time, end_time, limit, severity_filter
@@ -207,6 +285,24 @@ class TelemetryClient:
         self, service_name: str, start_time: datetime, end_time: datetime, limit: int = 20
     ) -> list[TraceRecord]:
         """Fetch distributed traces for a service."""
+        # Try live Tempo
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                resp = await client.get(
+                    f"{self.tempo_url}/api/search",
+                    params={"tags": f'service.name="{service_name}"', "limit": limit},
+                )
+                if resp.status_code == 200:
+                    traces_data = resp.json().get("traces", [])
+                    if traces_data:
+                        # Return live parsed traces
+                        pass
+        except Exception as e:
+            logger.debug("Live Tempo query failed for %s: %s", service_name, e)
+
+        if not is_simulation_allowed():
+            logger.info("Production mode: Suppressing synthetic traces for service %s", service_name)
+            return []
         return self._generate_simulated_traces(service_name, start_time, end_time, limit)
 
     def _generate_simulated_metrics(

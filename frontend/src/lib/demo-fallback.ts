@@ -187,6 +187,27 @@ export const DEMO_INCIDENTS = [
 
 export function getDemoFallback(endpoint: string, options: RequestInit = {}): any {
   if (endpoint.startsWith("/auth/login")) {
+    let email = "";
+    let password = "";
+    try {
+      if (options.body) {
+        const parsed = JSON.parse(options.body as string);
+        email = parsed.email;
+        password = parsed.password;
+      }
+    } catch {
+      // ignore
+    }
+    if (email !== "admin@aiops.sentinel" || password !== "sentinel-admin-1234") {
+      return {
+        data: null,
+        meta: { request_id: "req_demo_err" },
+        error: {
+          code: "AUTH_INVALID_CREDENTIALS",
+          message: "Invalid email or password",
+        },
+      };
+    }
     return {
       data: {
         access_token: "demo_standalone_token",
