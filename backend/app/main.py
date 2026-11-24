@@ -61,6 +61,9 @@ async def lifespan(app: FastAPI):
                 )
                 session.add(new_demo)
                 await session.commit()
+            # Auto-seed demo microservices, topology, incidents, and assessments if empty
+            from app.services.seed_service import seed_demo_data
+            await seed_demo_data(session)
     except Exception as exc:
         pass
     # Start background alert evaluation daemon (interval 30s)

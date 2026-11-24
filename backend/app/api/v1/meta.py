@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.response import make_response
+from app.db.session import get_db
 
 router = APIRouter()
 
@@ -27,3 +29,15 @@ async def get_metadata():
             "roadmap_features": ["DeployGuard", "ArchMind", "ControlledRemediation"],
         }
     )
+
+
+@router.post("/meta/seed-demo")
+async def seed_demo_endpoint(
+    force: bool = False,
+    db: AsyncSession = Depends(get_db),
+):
+    """Seed demo microservices, topology, incidents, alerts, experiments, and assessments."""
+    from app.services.seed_service import seed_demo_data
+
+    result = await seed_demo_data(db, force=force)
+    return make_response(result)

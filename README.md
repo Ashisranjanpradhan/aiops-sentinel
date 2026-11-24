@@ -335,10 +335,11 @@ where:
 
 The platform is validated by an automated test harness covering all application tiers:
 
-### Playwright End-to-End Suite (51/51 Tests Passed)
+### Playwright End-to-End Suite (69/69 Tests Passed)
 
 Tested across Desktop Chrome (1440x900), Tablet iPad (768x1024), and Mobile Pixel (393x851):
 
+- `dashboard-statistics.spec.ts`: Operational statistics verification across overview metrics, microservice golden signals, incident investigations, topological RCA ranking, dependency topology graphs, and ArchMind codebase scorecards (18 tests).
 - `signup-flow.spec.ts`: Direct `/signup` navigation, password policy validation, successful registration, and duplicate email rejection (15 tests).
 - `acceptance.spec.ts`: Session lifecycle, route navigation, codebase assessment, detail views, and admin runbook execution (18 tests).
 - `public-saas.spec.ts`: Public homepage, navigation routing, theme toggle persistence, and contact enquiry submissions (18 tests).
@@ -348,7 +349,7 @@ Command to execute end-to-end tests:
 cd frontend && PLAYWRIGHT_TEST_BASE_URL=http://localhost:3000 npx playwright test
 ```
 
-Execution Result: 51 passed in 18.6s.
+Execution Result: 69 passed in 44.7s.
 
 ### Backend Pytest Suite (64/64 Tests Passed)
 
